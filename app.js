@@ -261,8 +261,11 @@ const init = () => {
     let vw = window.innerWidth;
     let vh = window.innerHeight;
     function resize() {
-      vw = window.innerWidth;
-      vh = window.innerHeight;
+      const newVw = window.innerWidth;
+      const newVh = window.innerHeight;
+      if (newVw === vw && Math.abs(newVh - vh) < 120) return;
+      vw = newVw;
+      vh = newVh;
       canvas.width = vw * dpr;
       canvas.height = vh * dpr;
     }
