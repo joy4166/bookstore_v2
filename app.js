@@ -258,12 +258,12 @@ const init = () => {
     inkCanvas.height = inkH * dpr;
     const inkCtx = inkCanvas.getContext('2d');
 
-    let vw = window.innerWidth;
-    let vh = window.innerHeight;
+    let vw = 0;
+    let vh = 0;
     function resize() {
       const newVw = window.innerWidth;
       const newVh = window.innerHeight;
-      if (newVw === vw && Math.abs(newVh - vh) < 120) return;
+      if (vw !== 0 && newVw === vw && Math.abs(newVh - vh) < 120) return;
       vw = newVw;
       vh = newVh;
       canvas.width = vw * dpr;
@@ -892,6 +892,7 @@ const init = () => {
     const loadingError = document.getElementById('loading-error-message');
 
     if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
       loadingOverlay.classList.remove('hidden');
     }
     if (introCanvas) {
@@ -923,7 +924,12 @@ const init = () => {
         if (loadingOverlay) {
           loadingOverlay.classList.add('hidden');
         }
-        setTimeout(() => introController.cleanup(), 700);
+        setTimeout(() => {
+          introController.cleanup();
+          if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+          }
+        }, 700);
       }, 1150);
     }
 
@@ -1069,45 +1075,29 @@ const init = () => {
     });
   });
 
-  // IntersectionObserver 기반 섹션 등장 리빌(Scroll Reveal) 및 내비게이션 Scroll-Spy
-  if ('IntersectionObserver' in window) {
-    sections.forEach((section, index) => {
-      section.classList.add('reveal-ready');
-      if (index === 0) {
-        section.classList.add('is-visible');
+  // 데스크톱 내비게이션 Scroll-Spy (모바일 툴바 높이 변화에 영향받지 않는 패시브 스크롤 연동)
+  let spyTicking = false;
+  window.addEventListener('scroll', () => {
+    if (window.innerWidth <= 768 || spyTicking) return;
+    spyTicking = true;
+    requestAnimationFrame(() => {
+      let current = '';
+      const scrollPosition = window.scrollY + 124;
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.offsetHeight;
+        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+          current = section.getAttribute('id');
+        }
+      });
+      if (current) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
+        });
       }
+      spyTicking = false;
     });
-
-    const revealObserver = new IntersectionObserver((entries, observer) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      rootMargin: '0px 0px -10% 0px',
-      threshold: 0.08
-    });
-
-    sections.forEach(section => revealObserver.observe(section));
-
-    const spyObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const currentId = entry.target.getAttribute('id');
-          navLinks.forEach(link => {
-            link.classList.toggle('active', link.getAttribute('href') === `#${currentId}`);
-          });
-        }
-      });
-    }, {
-      rootMargin: '-25% 0px -60% 0px',
-      threshold: 0
-    });
-
-    sections.forEach(section => spyObserver.observe(section));
-  }
+  }, { passive: true });
 
   // ==========================================================================
   // 3. 모바일 햄버거 메뉴 제어
