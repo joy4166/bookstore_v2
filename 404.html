@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>페이지를 찾을 수 없습니다 | 동네책방 아인 (AYIN)</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=5">
+  <style>
+    .not-found-page {
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background-color: var(--bg-primary);
+    }
+    .not-found-card {
+      max-width: 480px;
+      width: 100%;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      padding: 48px 36px;
+      text-align: center;
+      box-shadow: var(--shadow-deep);
+    }
+    .not-found-code {
+      display: inline-block;
+      font-family: var(--font-sans);
+      font-variant-numeric: tabular-nums;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--color-accent);
+      background-color: rgba(95, 116, 100, 0.1);
+      padding: 6px 14px;
+      border-radius: var(--border-radius-xs);
+      margin-bottom: 18px;
+    }
+    .not-found-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.5rem, 3vw, 1.9rem);
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 14px;
+      line-height: 1.35;
+    }
+    .not-found-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      word-break: keep-all;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="not-found-page">
+    <section class="not-found-card" aria-labelledby="not-found-heading">
+      <span class="not-found-code">404 NOT FOUND</span>
+      <h1 id="not-found-heading" class="not-found-title">찾으시는 책갈피가<br>비어 있습니다</h1>
+      <p class="not-found-desc">
+        요청하신 페이지의 주소가 변경되었거나 삭제되어 찾을 수 없습니다.<br>
+        동네책방 아인의 첫 페이지로 돌아가 따뜻한 커피와 책 이야기를 만나보세요.
+      </p>
+      <a href="index.html" class="btn btn-primary">책방 첫 화면으로 돌아가기</a>
+    </section>
+  </main>
+</body>
+
+</html>

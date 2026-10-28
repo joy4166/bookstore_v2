@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>동네책방 아인 | 관리 대시보드</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <!-- Pretendard Variable (Official CDN) & Google Fonts -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nanum+Myeongjo:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="admin.css?v=6">
+</head>
+
+<body>
+  <a href="#admin-dashboard" class="skip-to-content">관리 대시보드 본문 바로가기</a>
+
+  <!-- 전역 로딩 오버레이 -->
+  <div id="global-loading-overlay" class="global-loading-overlay">
+    <div class="loading-spinner-wrapper" id="loading-spinner-wrapper">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p class="loading-message">관리 데이터 및 세션을 불러오는 중입니다...</p>
+    </div>
+    <div id="loading-error-message" class="loading-error-message" style="display: none;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <p>데이터 로딩 실패: 인터넷 연결 또는 DB 설정을 확인해 주세요.</p>
+      <button id="btn-retry-loading" class="btn-retry">다시 시도 <i class="fa-solid fa-rotate-right"></i></button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       로그인 게이트 (Password Authentication Gate)
+       ========================================================================== -->
+  <div class="admin-login-gate" id="admin-login-gate">
+    <div class="login-card">
+      <h2>책방지기 인증</h2>
+      <p>대시보드 진입을 위해 아이디와 비밀번호를 입력해 주세요.</p>
+      <form id="admin-login-form">
+        <div class="login-form-group">
+          <label for="admin-id">아이디</label>
+          <input type="text" id="admin-id" placeholder="아이디를 입력하세요." required>
+        </div>
+        <div class="login-form-group">
+          <label for="admin-password">비밀번호</label>
+          <input type="password" id="admin-password" placeholder="비밀번호를 입력하세요." required>
+        </div>
+        <button type="submit" class="btn-login">로그인</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       관리 대시보드 본문 (Dashboard Container)
+       ========================================================================== -->
+  <div id="admin-dashboard" style="display: none;">
+    <!-- 헤더 영역 -->
+    <header class="admin-header">
+      <div class="admin-header-title">
+        <h1>동네책방 아인 (AYIN)</h1>
+        <span>책방지기 관리 대시보드</span>
+      </div>
+      <button class="btn-logout" id="btn-admin-logout">
+        <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+      </button>
+    </header>
+
+    <div class="admin-container">
+      <!-- 탭 메뉴 내비게이션 -->
+      <nav class="admin-tabs" aria-label="관리자 탭 메뉴">
+        <button class="admin-tab-btn active" data-target="tab-rentals"><i class="fa-solid fa-calendar-check"></i> 대관 예약 관리</button>
+        <button class="admin-tab-btn" data-target="tab-menus"><i class="fa-solid fa-utensils"></i> 메뉴 관리</button>
+        <button class="admin-tab-btn" data-target="tab-curation"><i class="fa-solid fa-book-open"></i> 큐레이션 관리</button>
+        <button class="admin-tab-btn" data-target="tab-schedule"><i class="fa-solid fa-calendar-days"></i> 스케줄 관리</button>
+        <button class="admin-tab-btn" data-target="tab-gallery"><i class="fa-solid fa-images"></i> 갤러리 관리</button>
+        <button class="admin-tab-btn" data-target="tab-beans"><i class="fa-solid fa-mug-hot"></i> 원두/굿즈 관리</button>
+      </nav>
+
+      <!-- ==========================================================================
+           탭 1: 대관 예약 관리
+           ========================================================================== -->
+      <section class="admin-tab-content active" id="tab-rentals">
+        <!-- 대관 신청서 테이블 리스트 (가로 전체로 확장) -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <h2>실시간 대관 예약 현황</h2>
+            <button class="btn-add-secondary" id="btn-open-rental-modal-btn"><i class="fa-solid fa-plus"></i> 수동 예약 등록</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 15%; min-width: 100px;">예약정보</th>
+                  <th style="width: 15%; min-width: 110px;">연락처</th>
+                  <th style="width: 32%; min-width: 220px;">일시/인원</th>
+                  <th style="width: 11%; min-width: 80px;">요금</th>
+                  <th style="width: 9%; min-width: 60px;">상태</th>
+                  <th style="width: 18%; min-width: 130px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="rentals-table-body">
+                <!-- JS에서 동적으로 렌더링 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           탭 2: 메뉴 관리
+           ========================================================================== -->
+      <section class="admin-tab-content" id="tab-menus">
+        <div class="dashboard-split-grid">
+          <!-- 일반 패스 설정 카드 -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <h2>일반 패스 관리 (아인 책방 세트)</h2>
+            </div>
+            <form id="standard-package-form">
+              <div class="admin-form-group">
+                <label for="pkg-title">패키지 이름 *</label>
+                <input type="text" id="pkg-title" required>
+              </div>
+              <div class="admin-form-group">
+                <label for="pkg-price">가격 (원) *</label>
+                <input type="number" id="pkg-price" step="500" required>
+              </div>
+              <div class="admin-form-group">
+                <label for="pkg-desc">패키지 소개글 *</label>
+                <textarea id="pkg-desc" rows="3" required></textarea>
+              </div>
+              
+              <div style="border-top: 1px solid var(--border-color); padding-top: 18px; margin-top: 18px;">
+                <h4 style="font-size: 0.9rem; margin-bottom: 12px; color: var(--color-primary);"><i class="fa-solid fa-gift"></i> 포함 내역 관리</h4>
+                
+                <div class="admin-form-group">
+                  <label>1. 음료 포함 명칭 / 상세설명</label>
+                  <div class="admin-form-row" style="margin-bottom: 8px;">
+                    <input type="text" id="pkg-inc-0-title" placeholder="선택 음료 1잔" required>
+                    <input type="text" id="pkg-inc-0-detail" placeholder="상세 내용 설명" required>
+                  </div>
+                </div>
+                <div class="admin-form-group">
+                  <label>2. 핑거푸드 포함 명칭 / 상세설명</label>
+                  <div class="admin-form-row" style="margin-bottom: 8px;">
+                    <input type="text" id="pkg-inc-1-title" placeholder="오늘의 핑거푸드 1종" required>
+                    <input type="text" id="pkg-inc-1-detail" placeholder="상세 내용 설명" required>
+                  </div>
+                </div>
+                <div class="admin-form-group">
+                  <label>3. 공간/무제한독서 포함 명칭 / 상세설명</label>
+                  <div class="admin-form-row" style="margin-bottom: 8px;">
+                    <input type="text" id="pkg-inc-2-title" placeholder="서재 공간 & 서적 무제한 이용" required>
+                    <input type="text" id="pkg-inc-2-detail" placeholder="상세 내용 설명" required>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary-form" style="width: 100%; margin-top: 8px;">일반 패스 저장</button>
+            </form>
+          </div>
+
+          <!-- 점심 메뉴판 목록 에디터 -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <h2>점심 메뉴판 관리</h2>
+              <button class="btn-add-secondary" id="btn-open-menu-form-modal"><i class="fa-solid fa-plus"></i> 새 메뉴 추가</button>
+            </div>
+            
+            <h3 class="admin-subsection-title">수제 샌드위치 목록</h3>
+            <div class="edit-item-list" id="lunch-sandwiches-list">
+              <!-- JS에서 동적 로드 -->
+            </div>
+            
+            <h3 class="admin-subsection-title admin-subsection-title-spaced">음료 목록</h3>
+            <div class="edit-item-list" id="lunch-drinks-list">
+              <!-- JS에서 동적 로드 -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           탭 3: 큐레이션 관리
+           ========================================================================== -->
+      <section class="admin-tab-content" id="tab-curation">
+        <!-- 책방지기 목록 관리 (상단) -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <h2>책방지기 계정 관리</h2>
+          </div>
+          <div class="admin-form-row" style="align-items: flex-end; margin-bottom: 24px; border-bottom: 1px solid var(--border-color); padding-bottom: 24px;">
+            <form id="add-keeper-form" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; width: 100%;">
+              <input type="hidden" id="keep-id">
+              <div class="admin-form-group" style="margin-bottom: 0; width: 150px;">
+                <label for="keep-name">책방지기 이름 *</label>
+                <input type="text" id="keep-name" placeholder="예: 홍길동" required>
+              </div>
+              <div class="admin-form-group" style="margin-bottom: 0; flex: 1; min-width: 250px;">
+                <label for="keep-tags">해시태그 (공백으로 구분) *</label>
+                <input type="text" id="keep-tags" placeholder="#소설 #고전 #에세이" required>
+              </div>
+              <div class="admin-form-group" style="margin-bottom: 0; width: 100px;">
+                <label for="keep-order">노출 순서 *</label>
+                <input type="number" id="keep-order" value="1" min="1" required>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button type="submit" class="btn-primary-form" id="btn-submit-keeper" style="height: 44px; margin-bottom: 0;">
+                  <i class="fa-solid fa-user-plus"></i> 새 지기 등록
+                </button>
+                <button type="button" class="btn-action" id="btn-cancel-keeper-edit" style="height: 44px; display: none; background-color: var(--text-muted); color: white;">
+                  취소
+                </button>
+              </div>
+            </form>
+          </div>
+          
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>해시태그</th>
+                  <th>노출 순서</th>
+                  <th>도서 추천 수</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="keepers-list-body">
+                <!-- JS 동적 주입 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 큐레이션 도서 리스트 (가로 전체로 확장) -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <h2>지기별 도서 목록</h2>
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <div class="admin-form-group" style="margin-bottom: 0; width: 150px;">
+                <select id="select-keeper-filter">
+                  <!-- 책방지기 셀렉트 로드 -->
+                </select>
+              </div>
+              <button class="btn-add-secondary" id="btn-open-book-modal-btn"><i class="fa-solid fa-plus"></i> 도서 추가</button>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 10%; min-width: 60px;">표지</th>
+                  <th style="width: 45%; min-width: 200px;">도서 정보</th>
+                  <th style="width: 15%; min-width: 80px;">뱃지</th>
+                  <th style="width: 15%; min-width: 90px;">수정일</th>
+                  <th style="width: 15%; min-width: 120px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="books-table-body">
+                <!-- JS 동적 주입 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           탭 4: 스케줄 관리
+           ========================================================================== -->
+      <section class="admin-tab-content" id="tab-schedule">
+        <div class="card-panel">
+          <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+            <!-- 연/월 탐색 컨트롤러 -->
+            <div class="calendar-nav-controls" style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" class="btn-action" id="admin-cal-prev" title="이전 달"><i class="fa-solid fa-chevron-left"></i></button>
+              <select id="admin-cal-year-select" style="padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 600; font-size: 1rem;"></select>
+              <select id="admin-cal-month-select" style="padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); font-weight: 600; font-size: 1rem;"></select>
+              <button type="button" class="btn-action" id="admin-cal-next" title="다음 달"><i class="fa-solid fa-chevron-right"></i></button>
+              <button type="button" class="btn-action" id="admin-cal-today" style="font-size: 0.85rem; padding: 6px 12px;">오늘</button>
+            </div>
+            
+            <div class="calendar-legend">
+              <span class="legend-item"><span class="legend-color holiday"></span> 휴무일</span>
+              <span class="legend-item"><span class="legend-color event"></span> 대관 확정</span>
+              <span class="legend-item"><span class="legend-color available"></span> 예약 가능</span>
+            </div>
+          </div>
+          
+          <div class="admin-calendar-grid" id="admin-calendar-grid-cells">
+            <!-- JS가 달력 그리드를 동적으로 빌딩 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           탭 5: 갤러리 관리
+           ========================================================================== -->
+      <section class="admin-tab-content" id="tab-gallery">
+        <!-- 갤러리 목록 테이블 (전체 너비) -->
+        <div class="card-panel">
+          <div class="panel-header">
+            <h2>등록된 행사 목록</h2>
+            <button class="btn-add-secondary" id="btn-open-gallery-modal"><i class="fa-solid fa-plus"></i> 새 행사 등록</button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 20%; min-width: 80px;">대표 이미지</th>
+                  <th style="width: 40%; min-width: 150px;">제목</th>
+                  <th style="width: 20%; min-width: 90px;">행사 날짜</th>
+                  <th style="width: 20%; min-width: 80px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="gallery-table-body">
+                <!-- JS 동적 주입 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==========================================================================
+           탭 6: 원두 및 굿즈 관리
+           ========================================================================== -->
+      <section class="admin-tab-content" id="tab-beans">
+        <div class="card-panel">
+          <div class="panel-header">
+            <h2>원두 및 굿즈 상품 등록/수정</h2>
+          </div>
+
+          <!-- 상품 등록/수정 폼 -->
+          <form id="form-manage-bean" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 24px;">
+            <input type="hidden" id="bean-doc-id">
+
+            <div class="admin-form-row" style="display: flex; flex-wrap: wrap; gap: 16px;">
+              <div class="admin-form-group" style="flex: 2; min-width: 240px; margin-bottom: 0;">
+                <label for="bean-name">상품명 *</label>
+                <input type="text" id="bean-name" placeholder="예: 아인 하우스 블렌드 원두 (200g)" required>
+              </div>
+              <div class="admin-form-group" style="flex: 1; min-width: 140px; margin-bottom: 0;">
+                <label for="bean-badge">상품 뱃지</label>
+                <input type="text" id="bean-badge" placeholder="예: Best, MD 추천, 시즌한정 (선택)">
+              </div>
+              <div class="admin-form-group" style="width: 100px; margin-bottom: 0;">
+                <label for="bean-order">노출 순서 *</label>
+                <input type="number" id="bean-order" value="1" min="1" required>
+              </div>
+            </div>
+
+            <div class="admin-form-row" style="display: flex; flex-wrap: wrap; gap: 16px;">
+              <div class="admin-form-group" style="flex: 1; min-width: 160px; margin-bottom: 0;">
+                <label for="bean-price">판매 가격 (원) *</label>
+                <input type="number" id="bean-price" placeholder="14000" min="0" step="500" required>
+              </div>
+              <div class="admin-form-group" style="flex: 1; min-width: 160px; margin-bottom: 0;">
+                <label for="bean-shipping">배송비 (원)</label>
+                <input type="number" id="bean-shipping" value="3000" min="0" step="500">
+              </div>
+              <div class="admin-form-group" style="flex: 2; min-width: 240px; margin-bottom: 0;">
+                <label for="bean-store-url">스마트스토어 구매 링크</label>
+                <input type="url" id="bean-store-url" placeholder="https://smartstore.naver.com/..." value="https://smartstore.naver.com/">
+              </div>
+            </div>
+
+            <!-- 이미지 듀얼 업로드 옵션 -->
+            <div class="admin-form-group" style="margin-bottom: 0;">
+              <label>상품 이미지 등록 (파일 직접 업로드 또는 URL 입력) *</label>
+              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <input type="file" id="bean-image-file" accept="image/*" style="flex: 1; min-width: 200px;">
+                <span style="color: var(--text-muted); font-size: 0.85rem;">또는</span>
+                <input type="url" id="bean-image-url" placeholder="이미지 URL 직접 입력 (https://...)" style="flex: 2; min-width: 240px;">
+              </div>
+              <div id="bean-image-preview-wrapper" style="margin-top: 10px; display: none;">
+                <img id="bean-image-preview" src="" alt="미리보기" style="max-height: 120px; border-radius: 6px; border: 1px solid var(--border-color); object-fit: cover;">
+              </div>
+            </div>
+
+            <!-- 상세 설명 -->
+            <div class="admin-form-group" style="margin-bottom: 0;">
+              <label for="bean-desc">상품 상세 설명 *</label>
+              <textarea id="bean-desc" rows="3" placeholder="묵직한 바디감과 다크초콜릿 맛. 아침 독서용으로 가장 많은 분들이 찾는 시그니처 원두" required></textarea>
+            </div>
+
+            <!-- 제출 및 취소 버튼 -->
+            <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; margin-top: 8px;">
+              <button type="button" class="btn-action" id="btn-cancel-bean-edit" style="display: none; background-color: var(--text-muted); color: #FFFFFF; height: 44px; padding: 0 20px;">
+                수정 취소
+              </button>
+              <button type="submit" class="btn-primary-form" id="btn-submit-bean" style="height: 44px; margin-bottom: 0; min-width: 140px;">
+                <i class="fa-solid fa-plus"></i> 새 상품 등록
+              </button>
+            </div>
+          </form>
+
+          <!-- 등록된 원두 목록 테이블 -->
+          <div class="panel-header" style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+            <h2>등록된 상품 목록 (<span id="beans-total-count">0</span>개)</h2>
+            <button type="button" class="btn-action" id="btn-seed-sample-beans" style="background-color: var(--color-accent); color: #fff; font-size: 0.8rem; padding: 6px 12px; border-radius: 4px; display: inline-flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-rotate-left"></i> 기본 샘플 3종 복구
+            </button>
+          </div>
+          <div class="table-wrapper">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 8%; min-width: 50px;">순서</th>
+                  <th style="width: 12%; min-width: 80px;">이미지</th>
+                  <th style="width: 25%; min-width: 160px;">상품명 / 뱃지</th>
+                  <th style="width: 25%; min-width: 160px;">상세 설명</th>
+                  <th style="width: 15%; min-width: 110px;">가격 / 배송비</th>
+                  <th style="width: 15%; min-width: 120px;">관리</th>
+                </tr>
+              </thead>
+              <tbody id="beans-table-body">
+                <!-- JS에서 동적 주입 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       모달 창: 새 메뉴 추가 및 기존 메뉴 수정 모달 (탭 2용)
+       ========================================================================== -->
+  <div class="curation-list-modal-backdrop" id="admin-menu-modal" aria-hidden="true">
+    <div class="curation-list-modal" style="max-width: 500px; padding: 30px;">
+      <button class="modal-close-btn" id="btn-close-menu-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header" style="margin-bottom: 18px;">
+        <h3 id="menu-modal-title" style="font-size: 1.35rem;">새 메뉴 등록</h3>
+        <p>점심 메뉴판에 들어갈 항목을 입력하세요.</p>
+      </div>
+      <form id="admin-menu-item-form">
+        <input type="hidden" id="edit-menu-id">
+        <div class="admin-form-group">
+          <label for="menu-item-type">메뉴 구분 *</label>
+          <select id="menu-item-type" required>
+            <option value="sandwiches">수제 샌드위치 (Sandwich)</option>
+            <option value="drinks">음료 (Drinks)</option>
+          </select>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="menu-item-name">메뉴 이름 *</label>
+            <input type="text" id="menu-item-name" placeholder="예: 햄 샌드위치" required>
+          </div>
+          <div class="admin-form-group">
+            <label for="menu-item-price">가격 (원) *</label>
+            <input type="number" id="menu-item-price" step="100" placeholder="예: 5500" required>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="menu-item-desc">상세 설명 *</label>
+          <input type="text" id="menu-item-desc" placeholder="메뉴 맛 또는 재료에 대한 가벼운 묘사" required>
+        </div>
+        <button type="submit" class="btn-primary-form" style="width: 100%;">저장</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       모달 창: 수동 예약 등록 모달 (탭 1용)
+       ========================================================================== -->
+  <div class="curation-list-modal-backdrop" id="admin-rental-modal" aria-hidden="true">
+    <div class="curation-list-modal" style="max-width: 500px; padding: 30px;">
+      <button class="modal-close-btn" id="btn-close-rental-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header" style="margin-bottom: 18px;">
+        <h3>수동 예약 등록</h3>
+        <p>현장/전화 대관 예약 신청 정보를 입력하세요.</p>
+      </div>
+      <form id="offline-rental-form">
+        <div class="admin-form-group">
+          <label for="off-name">신청자 성함 *</label>
+          <input type="text" id="off-name" placeholder="예약자 성함 입력" required>
+        </div>
+        <div class="admin-form-group">
+          <label for="off-phone">연락처 *</label>
+          <input type="text" id="off-phone" placeholder="010-0000-0000" required>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="off-date">날짜 *</label>
+            <input type="date" id="off-date" required>
+          </div>
+          <div class="admin-form-group">
+            <label for="off-time">시작 시간 *</label>
+            <select id="off-time" required>
+              <option value="">시간 선택</option>
+              <option value="10:00">10:00 (오전 10시)</option>
+              <option value="11:00">11:00 (오전 11시)</option>
+              <option value="12:00">12:00 (오후 12시)</option>
+              <option value="13:00">13:00 (오후 1시)</option>
+              <option value="14:00">14:00 (오후 2시)</option>
+              <option value="15:00">15:00 (오후 3시)</option>
+              <option value="16:00">16:00 (오후 4시)</option>
+              <option value="17:00">17:00 (오후 5시)</option>
+              <option value="18:00">18:00 (오후 6시)</option>
+              <option value="19:00">19:00 (오후 7시)</option>
+              <option value="20:00">20:00 (오후 8시)</option>
+              <option value="21:00">21:00 (오후 9시)</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="off-hours">이용 시간 (시간) *</label>
+            <input type="number" id="off-hours" min="1" max="5" value="2" required>
+          </div>
+          <div class="admin-form-group">
+            <label for="off-people">인원 (명) *</label>
+            <input type="number" id="off-people" min="1" max="20" value="2" required>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="off-purpose">이용 목적 *</label>
+          <input type="text" id="off-purpose" placeholder="독서 모임, 과외 등 이용 목적" required>
+        </div>
+        <button type="submit" class="btn-primary-form" style="width: 100%;">수동 예약 추가</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       모달 창: 추천 도서 등록 및 수정 모달 (탭 3용)
+       ========================================================================== -->
+  <div class="curation-list-modal-backdrop" id="admin-book-modal" aria-hidden="true">
+    <div class="curation-list-modal" style="max-width: 600px; padding: 30px;">
+      <button class="modal-close-btn" id="btn-close-book-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header" style="margin-bottom: 18px;">
+        <h3 id="book-editor-title">추천 도서 추가</h3>
+        <p>책방지기의 추천 도서 리뷰 정보를 작성합니다.</p>
+      </div>
+      <form id="book-editor-form">
+        <input type="hidden" id="edit-book-id">
+        <div class="admin-form-group">
+          <label for="book-keeper-id">추천 책방지기 *</label>
+          <select id="book-keeper-id" required>
+            <!-- 지기 목록 -->
+          </select>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="book-title">도서 제목 *</label>
+            <input type="text" id="book-title" placeholder="도서명 입력" required>
+          </div>
+          <div class="admin-form-group">
+            <label for="book-author">저자 및 출판사 *</label>
+            <input type="text" id="book-author" placeholder="저자 | 출판사" required>
+          </div>
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="book-category">큐레이션 뱃지 *</label>
+            <input type="text" id="book-category" placeholder="예: 위로, 역사, 성장" required>
+          </div>
+          <div class="admin-form-group">
+            <label>표지 이미지 등록 (파일 선택 또는 이미지 URL 입력) *</label>
+            
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- 1. 파일 업로드 필드 -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.85rem; color: var(--text-muted); width: 85px;">파일 선택:</span>
+                <input type="file" id="book-cover-file" accept="image/*" style="flex: 1;">
+              </div>
+              
+              <!-- 구분 텍스트 -->
+              <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); position: relative; margin: 2px 0;">
+                <span style="background: var(--bg-primary); padding: 0 8px; z-index: 1; position: relative;">또는</span>
+                <hr style="border: 0; border-top: 1px dashed var(--border-color); margin-top: -9px;">
+              </div>
+              
+              <!-- 2. 웹 이미지 직접 URL 입력 필드 -->
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.85rem; color: var(--text-muted); width: 85px;">이미지 URL:</span>
+                <input type="url" id="book-cover-url" placeholder="https://images.unsplash.com/... 또는 웹 이미지 주소" style="flex: 1;">
+              </div>
+            </div>
+
+            <input type="hidden" id="book-cover" value="">
+            
+            <!-- 이미지 미리보기 -->
+            <div id="book-cover-preview-wrapper" style="margin-top: 10px; display: none;">
+              <img id="book-cover-preview" src="" alt="도서 표지 미리보기" style="max-height: 90px; border-radius: 4px; border: 1px solid var(--border-color); object-fit: cover;">
+            </div>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="book-excerpt">도서 핵심 발췌문 (한 줄 요약) *</label>
+          <input type="text" id="book-excerpt" placeholder="한 줄 요약 또는 인용구 입력" required>
+        </div>
+        <div class="admin-form-group">
+          <label for="book-review">책방지기 노트 상세 에세이 *</label>
+          <textarea id="book-review" rows="5" placeholder="책방지기가 남기는 감성적인 책 추천 상세글을 작성하세요." required></textarea>
+        </div>
+        <button type="submit" class="btn-primary-form" id="btn-submit-book" style="width: 100%;">추천 도서 추가</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       모달 창: 새 행사 갤러리 등록 모달 (탭 5용)
+       ========================================================================== -->
+  <div class="curation-list-modal-backdrop" id="admin-gallery-modal" aria-hidden="true">
+    <div class="curation-list-modal" style="max-width: 600px; padding: 30px;">
+      <button class="modal-close-btn" id="btn-close-gallery-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header" style="margin-bottom: 18px;">
+        <h3 id="gallery-editor-title" style="font-size: 1.35rem;">새 행사 갤러리 등록</h3>
+        <p>책방 행사 기록을 등록하세요.</p>
+      </div>
+      <form id="gallery-upload-form">
+        <input type="hidden" id="edit-gallery-id">
+        <div class="admin-form-group">
+          <label for="gallery-title">행사 제목 *</label>
+          <input type="text" id="gallery-title" required placeholder="예: 여름밤의 심야 책방">
+        </div>
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label for="gallery-date">행사 일자 *</label>
+            <input type="date" id="gallery-date" required>
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label for="gallery-desc">행사 설명 (본문 내용) *</label>
+          <textarea id="gallery-desc" rows="4" required placeholder="행사에 대한 이야기를 들려주세요."></textarea>
+        </div>
+        <div class="admin-form-group">
+          <label for="gallery-images">행사 이미지 선택 (다중 선택 가능, 자동 압축) *</label>
+          <input type="file" id="gallery-images" multiple accept="image/*" required>
+          <div id="gallery-images-preview" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;"></div>
+        </div>
+        <div class="admin-form-group" id="gallery-progress-container" style="display: none;">
+          <label>업로드 진행 상태</label>
+          <div style="background-color: var(--border-color); border-radius: 4px; height: 10px; overflow: hidden; position: relative;">
+            <div id="gallery-progress-bar" style="background-color: var(--color-accent); width: 0%; height: 100%; transition: width 0.3s;"></div>
+          </div>
+          <div id="gallery-progress-text" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; text-align: right;">0%</div>
+        </div>
+        <button type="submit" class="btn-primary-form" id="btn-submit-gallery" style="width: 100%; margin-top: 8px;">갤러리 등록</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 일자별 스케줄 관리 미니 팝업 모달 -->
+  <div class="curation-list-modal-backdrop modal-backdrop-elevated" id="admin-day-schedule-modal" aria-hidden="true">
+    <div class="curation-list-modal" style="max-width: 520px;">
+      <button class="modal-close-btn" id="btn-close-day-schedule-modal" aria-label="닫기"><i class="fa-solid fa-xmark"></i></button>
+      <div class="curation-list-modal-header" style="text-align: left; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+        <h3 id="day-modal-date-title" style="font-size: 1.35rem; color: var(--color-primary);">2026년 07월 15일</h3>
+        <p id="day-modal-date-subtitle" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">해당 일자의 영업 및 대관 현황을 관리합니다.</p>
+      </div>
+      
+      <div style="padding: 20px 0;">
+        <!-- 1. 영업/휴무 상태 토글 영역 -->
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); padding: 14px 18px; border-radius: 8px; margin-bottom: 20px;">
+          <div>
+            <strong id="day-modal-status-label" style="font-size: 1rem;">정상 영업일</strong>
+            <p id="day-modal-status-desc" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">일반 손님 대관 신청 가능</p>
+          </div>
+          <button type="button" class="btn-action" id="btn-toggle-day-holiday" style="font-size: 0.85rem; font-weight: 600;">휴무일로 변경</button>
+        </div>
+
+        <!-- 2. 확정된 대관 시간대 리스트 -->
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--color-primary);"><i class="fa-regular fa-clock"></i> 확정된 대관 일정</h4>
+          <div id="day-modal-bookings-list" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- JS가 시간대 카드들을 렌더링 -->
+          </div>
+        </div>
+
+        <!-- 3. 현장 대관/시간 차단 빠른 등록 폼 -->
+        <div style="border-top: 1px dashed var(--border-color); padding-top: 16px;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--color-primary);"><i class="fa-solid fa-plus"></i> 현장 대관 / 시간 차단 등록</h4>
+          <form id="day-modal-quick-booking-form" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <input type="text" id="quick-book-name" placeholder="예약자명/목적" required style="flex: 2; min-width: 130px; height: 38px; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+            <select id="quick-book-time" required style="flex: 1; min-width: 100px; height: 38px; padding: 6px 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+              <option value="10:00">10:00</option><option value="11:00">11:00</option><option value="12:00">12:00</option>
+              <option value="13:00">13:00</option><option value="14:00">14:00</option><option value="15:00">15:00</option>
+              <option value="16:00">16:00</option><option value="17:00">17:00</option><option value="18:00">18:00</option>
+            </select>
+            <select id="quick-book-hours" required style="width: 80px; height: 38px; padding: 6px 8px; border-radius: 4px; border: 1px solid var(--border-color);">
+              <option value="2">2시간</option><option value="3">3시간</option><option value="4">4시간</option>
+            </select>
+            <button type="submit" class="btn-primary-form" style="height: 38px; padding: 0 16px; margin: 0;">등록</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 관리자 화면 우측 상단 토스트 알림 컨테이너 -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Firebase SDK 및 Admin Script 로드 (Module) -->
+  <script type="module" src="admin.js"></script>
+</body>
+
+</html>

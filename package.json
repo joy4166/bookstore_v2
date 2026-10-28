@@ -1,0 +1,17 @@
+{
+  "name": "local-bookstore-ayin",
+  "version": "1.0.0",
+  "description": "동네책방 아인 (AYIN) 공식 홈페이지 데모",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 3005 -c-1",
+    "start": "npx http-server -p 3005 -c-1"
+  },
+  "keywords": [
+    "bookstore",
+    "cafe",
+    "ayin"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

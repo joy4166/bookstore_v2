@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="책과 커피 향이 머무는 곳, 동네책방 아인(AYIN)입니다. 책방지기가 큐레이션한 도서와 직접 로스팅한 원두, 드립백을 만나보세요. 아늑한 공간 대여도 가능합니다.">
+  <meta name="keywords" content="동네책방 아인, 책방 아인, AYIN, 북카페, 로스팅원두, 원두판매, 공간대여, 독서모임, 동네책방, 감성책방">
+  <meta property="og:title" content="동네책방 아인 | AYIN">
+  <meta property="og:description" content="책과 커피 향이 머무는 아늑한 공간. 로스팅 원두 및 대여 서비스 안내.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/logo.png">
+  <title>동네책방 아인 | AYIN</title>
+  <!-- Fonts (Pretendard Variable, Manrope & Nanum Myeongjo) & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" as="style" crossorigin
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nanum+Myeongjo:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+</head>
+
+<body>
+  <a href="#main-content" class="skip-to-content">본문 바로가기</a>
+
+  <!-- ==========================================================================
+       전역 로딩 인디케이터 오버레이 (HTML5 Canvas 곡면 3D 북 & 만년필 캘리그라피)
+       ========================================================================== -->
+  <div id="global-loading-overlay" class="global-loading-overlay">
+    <canvas id="intro-book-canvas" class="intro-book-canvas" aria-label="동네책방 아인 오프닝 애니메이션"></canvas>
+
+    <!-- 로딩 실패 시 에러 메시지 -->
+    <div id="loading-error-message" class="loading-error-message" style="display: none;">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <p>데이터 로딩 실패: 인터넷 연결 또는 DB 설정을 확인해 주세요.</p>
+      <button id="btn-retry-loading" class="btn-retry">다시 시도 <i class="fa-solid fa-rotate-right"></i></button>
+    </div>
+  </div>
+
+  <!-- 헤더 (Header) -->
+  <header id="main-header" class="main-header">
+    <div class="header-container">
+      <a href="#home" class="logo-area" id="link-logo-home">
+        <!-- 실제 로고 파일 로드 시도, 실패 시 텍스트 로고 노출을 위한 onerror 및 클래스 설정 -->
+        <img src="assets/logo.png" alt="동네책방 아인" class="logo-img" id="header-logo-image"
+          onerror="this.style.display='none'; document.getElementById('logo-fallback-text').style.display='block';">
+        <span id="logo-fallback-text" class="logo-text" style="display: none;">동네책방 아인</span>
+      </a>
+
+      <!-- 데스크톱 내비게이션 -->
+      <nav class="desktop-nav" aria-label="메인 메뉴">
+        <ul>
+          <li><a href="#home" class="nav-link active" id="nav-btn-home">Home</a></li>
+          <li><a href="#cafe-menu" class="nav-link" id="nav-btn-cafe-menu">Café Menu</a></li>
+          <li><a href="#book-curation" class="nav-link" id="nav-btn-book-curation">Curation</a></li>
+          <li><a href="#gallery" class="nav-link" id="nav-btn-gallery">Gallery</a></li>
+          <li><a href="#shop" class="nav-link" id="nav-btn-shop">Beans</a></li>
+          <li><a href="#rental" class="nav-link" id="nav-btn-rental">Space Rental</a></li>
+          <li><a href="#about" class="nav-link" id="nav-btn-about">About & Map</a></li>
+        </ul>
+      </nav>
+
+      <!-- 모바일 햄버거 메뉴 버튼 -->
+      <button class="mobile-menu-toggle" id="btn-mobile-menu-toggle" aria-label="메뉴 열기">
+        <i class="fa-solid fa-bars" id="icon-mobile-menu"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 모바일 드롭다운 메뉴 -->
+  <div class="mobile-nav-overlay" id="mobile-nav-menu" aria-hidden="true">
+    <nav class="mobile-nav" aria-label="모바일 메뉴">
+      <ul>
+        <li><a href="#home" class="mobile-nav-link" id="mobile-nav-btn-home">Home</a></li>
+        <li><a href="#cafe-menu" class="mobile-nav-link" id="mobile-nav-btn-cafe-menu">Café Menu</a></li>
+        <li><a href="#book-curation" class="mobile-nav-link" id="mobile-nav-btn-book-curation">Curation</a></li>
+        <li><a href="#gallery" class="mobile-nav-link" id="mobile-nav-btn-gallery">Gallery</a></li>
+        <li><a href="#shop" class="mobile-nav-link" id="mobile-nav-btn-shop">Beans</a></li>
+        <li><a href="#rental" class="mobile-nav-link" id="mobile-nav-btn-rental">Space Rental</a></li>
+        <li><a href="#about" class="mobile-nav-link" id="mobile-nav-btn-about">About & Map</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <main id="main-content">
+
+    <!-- 1. 홈 섹션 (Home Section) -->
+    <section id="home" class="home-section active-page">
+      <div class="hero-slider-wrapper">
+        <div class="hero-image-container">
+          <!-- 책방 메인 사진 플레이스홀더 -->
+          <img src="assets/store_main.png" alt="동네책방 아인 전경" class="hero-image" id="img-store-main"
+            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop';">
+          <div class="hero-overlay">
+            <span class="hero-kicker">INDEPENDENT BOOKSHOP &amp; ROASTERY</span>
+            <h1 class="hero-title">동네책방 아인</h1>
+            <p class="hero-subtitle">사락거리는 종이책의 온기와 갓 내린 커피 향이 머무는, 조용하고 아늑한 문학적 쉼표</p>
+            <div class="hero-cta-group">
+              <a href="#book-curation" class="cta-button" id="btn-hero-cta">이달의 큐레이션 보기</a>
+              <a href="#cafe-menu" class="cta-button cta-button-secondary">카페 &amp; 책방 패스</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container welcome-container">
+        <div class="welcome-card">
+          <div class="welcome-letter-meta">
+            <span class="welcome-tag">BOOKKEEPER'S NOTE</span>
+            <h2 class="welcome-title">아인에 머물다 가는 시간만큼은<br>오롯이 당신의 것이기를.</h2>
+            <div class="welcome-signature">
+              <span class="signature-role">책방지기</span>
+              <strong class="signature-name">임영혜 드림</strong>
+            </div>
+          </div>
+          <div class="welcome-letter-body">
+            <p class="welcome-text">
+              문득 책장이 넘기고 싶을 때, 진하게 내려진 커피 향이 그리울 때 언제든 편히 찾아올 수 있는 동네 아지트가 되었으면 좋겠습니다.
+            </p>
+            <p class="welcome-text">
+              이곳에서는 스마트폰을 잠시 내려놓고 사락사락 넘어가는 종이 소리와 은은하게 피어오르는 원두 향기에 천천히 귀를 기울여 보세요.
+            </p>
+          </div>
+        </div>
+
+        <!-- 퀵 요약 정보 레저 (Architectural Info Ledger) -->
+        <div class="quick-info-grid">
+          <div class="quick-info-card">
+            <div class="info-card-top">
+              <span class="info-index tabular-nums">01 / OPENING HOURS</span>
+              <i class="fa-solid fa-clock info-card-icon" aria-hidden="true"></i>
+            </div>
+            <h3>영업시간 안내</h3>
+            <p class="tabular-nums">월요일 ~ 금요일 (11:00 ~ 19:00)</p>
+            <p class="info-highlight">매주 주말 및 법정 공휴일 정기 휴무</p>
+          </div>
+          <div class="quick-info-card">
+            <div class="info-card-top">
+              <span class="info-index tabular-nums">02 / ROASTERY COFFEE</span>
+              <i class="fa-solid fa-mug-hot info-card-icon" aria-hidden="true"></i>
+            </div>
+            <h3>스페셜티 핸드드립</h3>
+            <p>매일 아침 직접 로스팅하는 고소하고 향기로운 싱글 오리진 핸드드립 커피와 드립백</p>
+          </div>
+          <div class="quick-info-card">
+            <div class="info-card-top">
+              <span class="info-index tabular-nums">03 / PRIVATE SPACE</span>
+              <i class="fa-solid fa-door-open info-card-icon" aria-hidden="true"></i>
+            </div>
+            <h3>아늑한 공간 대여</h3>
+            <p>소규모 독서 모임, 스터디, 세미나 및 워크숍을 위한 조용한 단독 서재 공간 대관</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. 카페 메뉴 섹션 (Café Menu) -->
+    <section id="cafe-menu" class="cafe-menu-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">01 / CAFÉ &amp; PASS</span>
+          <h2>카페 메뉴 &amp; 이용 패스</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">향긋한 핸드드립 커피와 수제 브런치, 그리고 서재 공간을 여유롭게 누리는 책방 패스입니다.</p>
+        </div>
+
+        <!-- 메뉴 구분 탭 버튼 -->
+        <div class="cafe-menu-tabs">
+          <button class="menu-tab-btn active" id="tab-btn-standard" data-target="menu-standard-content">일반 패스</button>
+          <button class="menu-tab-btn" id="tab-btn-lunch" data-target="menu-lunch-content">점심 (Lunch)</button>
+        </div>
+
+        <!-- 일반 패스 탭 내용 -->
+        <div id="menu-standard-content" class="menu-tab-content active">
+          <!-- JS가 동적으로 아인 책방 세트 카드를 렌더링 -->
+        </div>
+
+        <!-- 점심 탭 내용 -->
+        <div id="menu-lunch-content" class="menu-tab-content">
+          <!-- JS가 동적으로 점심 메뉴판을 렌더링 -->
+        </div>
+
+        <div class="lunch-note">
+          <p><i class="fa-solid fa-circle-info"></i> 점심시간(11:30 ~ 14:00) 동안 바쁜 일상 속 가벼운 식사와 편안한 독서를 즐겨 보세요.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. 책방지기 큐레이션 섹션 (Book Curation) -->
+    <section id="book-curation" class="book-curation-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">02 / CURATION NOTES</span>
+          <h2>책방지기 큐레이션 서가</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">아인의 책방지기들이 직접 읽고 밑줄 그은 문장들과 함께 권하는 이달의 추천 도서입니다.</p>
+        </div>
+
+        <!-- 큐레이터 탭 버튼 영역 -->
+        <div class="curation-tabs-wrapper">
+          <div class="curation-tabs" id="curation-tab-buttons-container">
+            <!-- JS에서 책방지기 탭 버튼들을 동적으로 생성 -->
+          </div>
+        </div>
+
+        <!-- 동적 큐레이션 컨텐츠 영역 (해시태그 및 도서 목록) -->
+        <div id="curation-container">
+          <!-- JS에서 해시태그 칩들과 3개의 도서 카드를 동적으로 렌더링 -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 갤러리 섹션 (Gallery Section) -->
+    <section id="gallery" class="gallery-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">03 / ARCHIVE &amp; EVENTS</span>
+          <h2>책방 갤러리</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">동네책방 아인에서 진행된 다양한 행사와 따뜻한 일상의 기록입니다.</p>
+        </div>
+
+        <div class="gallery-grid-wrapper" id="gallery-grid-wrapper">
+          <div class="gallery-grid" id="gallery-grid">
+            <!-- JS가 동적으로 행사 갤러리 카드들을 렌더링 -->
+          </div>
+          <!-- 3개 초과 시 노출되는 + 더보기 버튼 -->
+          <button class="btn-more-curation-circle" id="btn-more-gallery" aria-label="행사 전체보기" title="행사 전체보기"
+            style="display: none;">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. 원두 숍 섹션 (Beans) -->
+    <section id="shop" class="shop-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">04 / ROASTING BEANS</span>
+          <h2>원두 &amp; 드립백 숍</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">아인에서 매일 아침 정성껏 로스팅한 스페셜티 원두와 드립백을 집에서도 그대로 즐겨보세요.</p>
+        </div>
+
+        <div class="shop-grid-wrapper" id="shop-grid-wrapper">
+          <div class="shop-grid" id="shop-beans-grid">
+            <!-- 상품 목록 (JS에서 최대 3개 렌더링) -->
+          </div>
+          <!-- 3개 초과 시 표시되는 + 원형 더보기 버튼 -->
+          <button class="btn-more-curation-circle" id="btn-more-shop" aria-label="원두 및 굿즈 전체보기" title="원두 및 굿즈 전체보기"
+            style="display: none;">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 공간 대여 신청 섹션 (Space Rental) -->
+    <section id="rental" class="rental-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">05 / SPACE RENTAL</span>
+          <h2>공간 대여</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">북카페 아인의 조용하고 아늑한 서재 공간을 단독으로 대여해 드립니다. 독서 모임, 학업, 강연, 소규모 모임에 적합합니다.</p>
+        </div>
+
+        <div class="rental-grid">
+          <!-- 좌측 컬럼: 대여 안내 & 스케줄 달력 & 유의사항 (사진 제거로 우측 폼과 높이 균형) -->
+          <div class="rental-info-column">
+            <div class="rental-details-card">
+              <div class="rental-details-header">
+                <span class="rental-badge">단독 대관</span>
+                <h3>공간 대여 안내 & 이용 요금</h3>
+              </div>
+              <ul class="rental-spec-list">
+                <li><i class="fa-solid fa-users"></i> <span><strong>최대 수용 인원</strong>: 20명</span></li>
+                <li><i class="fa-solid fa-clock"></i> <span><strong>이용 시간</strong>: 최소 2시간부터 대여 가능</span></li>
+                <li><i class="fa-solid fa-coins"></i> <span><strong>대여 비용</strong>: 1시간 15,000원</span></li>
+                <li><i class="fa-solid fa-tv"></i> <span><strong>제공 시설</strong>: 65인치 TV 모니터, 블루투스 스피커, Wifi, 냉난방</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 예약 현황 캘린더 (달력 날짜 클릭 시 우측 폼에 대여 날짜 자동 반영) -->
+            <div class="calendar-card" id="rental-calendar-card">
+              <div class="calendar-header">
+                <div class="calendar-title-group">
+                  <button type="button" class="btn-cal-nav" id="client-cal-prev" aria-label="이전 달"><i
+                      class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                  <h3 id="client-cal-title" class="calendar-month-title tabular-nums">2026년 10월</h3>
+                  <button type="button" class="btn-cal-nav" id="client-cal-next" aria-label="다음 달"><i
+                      class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                </div>
+                <div class="calendar-legend">
+                  <span class="legend-item"><span class="legend-color holiday"></span> 휴무일</span>
+                  <span class="legend-item"><span class="legend-color event"></span> 대관 현황</span>
+                </div>
+              </div>
+              <div class="calendar-grid tabular-nums" id="calendar-grid-cells"></div>
+              <p class="calendar-hint">
+                <i class="fa-regular fa-hand-pointer" aria-hidden="true"></i> <strong>원하시는 날짜를 클릭</strong>하시면 오른쪽 신청서에 예약 날짜가 자동 입력됩니다.
+              </p>
+            </div>
+
+            <div class="space-warning-box">
+              <p><strong><i class="fa-solid fa-circle-info"></i> 예약 전 유의사항</strong></p>
+              <p>대여 3일 전까지 취소 시 100% 환불되며, 이후에는 환불이 불가합니다. 소란스러운 음주 파티 목적의 대여는 정중히 사양합니다.</p>
+            </div>
+          </div>
+
+          <!-- 우측 컬럼: 대관 신청서 폼 -->
+          <div class="rental-form-column" id="rental-form-box">
+            <h3>공간 대여 신청서</h3>
+            <p class="form-help-text">좌측 달력에서 날짜를 확인하신 후 정보를 입력해 주세요. 확정 시 안내 연락을 드립니다.</p>
+
+            <form id="space-rental-form" class="rental-form">
+              <div class="form-group">
+                <label for="rental-name">신청자 성함 <span class="required">*</span></label>
+                <input type="text" id="rental-name" name="name" placeholder="성함을 입력해주세요." required>
+              </div>
+
+              <div class="form-group">
+                <label for="rental-phone">연락처 <span class="required">*</span></label>
+                <input type="tel" id="rental-phone" name="phone" placeholder="010-0000-0000" required>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rental-date">대여 날짜 <span class="required">*</span></label>
+                  <input type="date" id="rental-date" name="date" required>
+                </div>
+                <div class="form-group">
+                  <label for="rental-time">시작 시간 <span class="required">*</span></label>
+                  <select id="rental-time" name="time" required>
+                    <option value="">시간 선택</option>
+                    <option value="10:00">10:00 (오전 10시)</option>
+                    <option value="11:00">11:00 (오전 11시)</option>
+                    <option value="12:00">12:00 (오후 12시)</option>
+                    <option value="13:00">13:00 (오후 1시)</option>
+                    <option value="14:00">14:00 (오후 2시)</option>
+                    <option value="15:00">15:00 (오후 3시)</option>
+                    <option value="16:00">16:00 (오후 4시)</option>
+                    <option value="17:00">17:00 (오후 5시)</option>
+                    <option value="18:00">18:00 (오후 6시)</option>
+                    <option value="19:00">19:00 (오후 7시)</option>
+                    <option value="20:00">20:00 (오후 8시)</option>
+                    <option value="21:00">21:00 (오후 9시)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="rental-hours">이용 시간 (시간) <span class="required">*</span></label>
+                  <input type="number" id="rental-hours" name="hours" min="2" max="8" value="2" required>
+                </div>
+                <div class="form-group">
+                  <label for="rental-people">예상 인원 <span class="required">*</span></label>
+                  <input type="number" id="rental-people" name="people" min="1" max="20" placeholder="명" required>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="rental-purpose">사용 목적 <span class="required">*</span></label>
+                <textarea id="rental-purpose" name="purpose" rows="3" placeholder="예: 독서 모임, 스터디, 세미나 등 대여 목적을 기재해 주세요."
+                  required></textarea>
+              </div>
+
+              <!-- 실시간 대여료 계산 요약 바 -->
+              <div class="rental-price-summary-bar" id="rental-price-summary-bar">
+                <span class="rental-price-label"><i class="fa-solid fa-receipt" aria-hidden="true"></i> 예상 대여 요금:</span>
+                <strong id="rental-price-preview-text" class="rental-price-value tabular-nums">2시간 × 15,000원 = 30,000원</strong>
+              </div>
+
+              <!-- 인라인 폼 검증 에러 배너 (window.alert 대체) -->
+              <div id="rental-form-error" class="form-error-banner" role="alert" aria-live="polite" hidden></div>
+
+              <p class="form-privacy-notice">
+                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 입력하신 성함과 연락처는 대관 예약 확인 및 안내 연락 목적으로만 사용되며, 이용 종료 후 파기됩니다.
+              </p>
+
+              <button type="submit" class="btn-submit-rental" id="btn-submit-space-rental">
+                대여 신청하기 <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. 책방 소개 및 오시는 길 (About & Map) -->
+    <section id="about" class="about-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="sub-title tabular-nums">06 / ABOUT &amp; LOCATION</span>
+          <h2>책방 소개 &amp; 오시는 길</h2>
+          <div class="section-divider"></div>
+          <p class="section-intro">골목 끝자락에서 따뜻한 조명과 커피 향을 켜두고 당신의 발걸음을 기다립니다.</p>
+        </div>
+
+        <div class="about-grid">
+          <!-- 좌측 컬럼: 지도 및 상세 오시는 길 -->
+          <div class="about-map-box">
+            <!-- 구글 지도 임베드 -->
+            <div class="google-map-wrapper" id="map-frame">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m5!3m3!1m2!1s0x3568935843a1dd7b%3A0x8c649847a483e463!2z64-Z64Sk7LGF67Cp7JWE7J24!5e0!3m2!1sko!2skr!4v1782888185002!5m2!1sko!2skr"
+                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"
+                referrerpolicy="strict-origin-when-cross-origin"></iframe>
+            </div>
+
+            <div class="map-address-card">
+              <p><i class="fa-solid fa-map-location-dot"></i> <strong>주소</strong>: 부산광역시 연제구 월드컵대로221 (다우빌딩 2층)</p>
+              <p><i class="fa-solid fa-phone"></i> <strong>전화번호</strong>: 0507-1321-2095 (임영혜 책방지기)</p>
+              <p><i class="fa-solid fa-bus"></i> <strong>대중교통</strong>: 거제역 7번 출구 도보 1분 이내</p>
+            </div>
+          </div>
+
+          <!-- 우측 컬럼: 책방 스토리 & 정기 영업 안내 (SNS 배너 제거로 1:1 대칭 완성) -->
+          <div class="about-detail-box">
+            <div class="story-wrapper">
+              <h3>골목 끝자락, 아늑한 서재</h3>
+              <p>
+                동네책방 아인은 단순히 책을 파는 상점이기보다, 동네 이웃들이 조용히 머무르며 위안을 얻고 갈 수 있는 '문학적 쉼터'가 되기를 바랍니다.
+                책방지기가 한 권 한 권 섬세하게 고른 소설, 시집, 수필집이 나무 서가를 가득 채우고 있으며, 갓 내린 커피의 향기가 공간 전체를 따뜻하게 감쌉니다.
+              </p>
+            </div>
+
+            <!-- 정기 영업시간 및 책방 이용 안내 카드 -->
+            <div class="about-hours-card">
+              <h4><i class="fa-regular fa-clock" aria-hidden="true"></i> 책방 영업시간 및 이용 안내</h4>
+              <div class="hours-row">
+                <span class="hours-day">평일 (월요일 ~ 금요일)</span>
+                <span class="hours-time tabular-nums">11:00 ~ 19:00</span>
+              </div>
+              <div class="hours-row highlight">
+                <span class="hours-day">주말 및 법정 공휴일</span>
+                <span class="hours-time">정기 휴무 (대관 행사 시 별도 운영)</span>
+              </div>
+              <div class="about-notice-box">
+                <p><i class="fa-solid fa-mug-hot" aria-hidden="true"></i> 모든 방문객분들께 조용하고 아늑한 독서 환경을 제공해 드리고 있습니다.</p>
+                <p><i class="fa-brands fa-instagram" aria-hidden="true"></i> 비정기 북토크 및 낭독회 일정은 공식 인스타그램을 통해 가장 먼저 공지됩니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 푸터 (Footer) -->
+  <footer id="main-footer" class="main-footer">
+    <div class="footer-container container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <h3>동네책방 아인 (AYIN)</h3>
+          <p>책과 커피가 만나 피어나는 따뜻한 아지트</p>
+        </div>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/bookstore_ayin/" target="_blank" rel="noopener noreferrer"
+            class="social-icon" id="link-social-instagram" aria-label="인스타그램"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://blog.naver.com/ayin_bookstore" target="_blank" rel="noopener noreferrer" class="social-icon"
+            id="link-social-blog" aria-label="네이버 블로그"><i class="fa-solid fa-blog"></i></a>
+          <a href="mailto:ayin_bookstore@naver.com" class="social-icon" id="link-social-email" aria-label="이메일"><i
+              class="fa-regular fa-envelope"></i></a>
+        </div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-content">
+          <span class="footer-copyright">&copy; 2026 동네책방 아인 AYIN. All Rights Reserved.</span>
+          <span class="footer-divider-dot">·</span>
+          <span class="footer-creator">
+            <span class="creator-label">디자인 및 개발</span>
+            <img src="assets/justjoy_logo_light.png" alt="JUSTJOY" class="footer-creator-logo" height="18">
+          </span>
+        </div>
+        <p class="footer-disclaimer">개인정보 보호 안내: 공간 대여 신청 시 입력된 개인정보는 예약 확인 및 이용 안내 목적으로만 활용되며 목적 달성 후 지체 없이 파기됩니다.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 책방지기 리뷰 모달 (Book Review Modal) -->
+  <div class="review-modal-backdrop" id="review-modal" aria-hidden="true">
+    <div class="review-modal">
+      <button class="modal-close-btn" id="btn-close-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-content-wrapper">
+        <div class="modal-book-img">
+          <img src="" alt="도서 이미지" id="modal-cover-img">
+        </div>
+        <div class="modal-book-details">
+          <span class="modal-badge" id="modal-badge-text">카테고리</span>
+          <h3 class="modal-title" id="modal-book-title">도서 제목</h3>
+          <span class="modal-author" id="modal-book-author">저자 | 출판사</span>
+          <div id="modal-book-excerpt" class="modal-book-excerpt"></div>
+          <div class="modal-divider"></div>
+          <div class="modal-reviewer-title"><i class="fa-solid fa-pen-nib" aria-hidden="true"></i> 책방지기의 큐레이션 노트</div>
+          <p class="modal-review-text" id="modal-review-content">
+            책방지기가 직접 남기는 상세 리뷰 에세이 영역입니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공간 대여 완료 안내 팝업/모달 (Rental Success Modal) -->
+  <div class="success-modal-backdrop" id="success-modal" aria-hidden="true">
+    <div class="success-modal">
+      <div class="success-icon-circle">
+        <i class="fa-solid fa-calendar-check"></i>
+      </div>
+      <h2>대여 신청 완료</h2>
+      <p class="success-summary">공간 대여 신청 정보가 접수되었습니다.</p>
+
+      <div class="success-detail-receipt tabular-nums" id="receipt-details">
+        <!-- 동적으로 신청 내용이 렌더링되는 가상 영수증 영역 -->
+      </div>
+
+      <p class="success-desc">
+        책방지기가 신청 내역을 확인한 후 <strong class="text-emphasis">1~2시간 내</strong>에 남겨주신 연락처로 예약
+        확정 문자 및 결제(무통장 입금) 계좌 정보를 안내해 드립니다.
+      </p>
+
+      <button class="btn-success-close" id="btn-close-success-modal">예약 내역 닫기</button>
+    </div>
+  </div>
+
+  <!-- 큐레이션 전체 목록 모달 (Curation List Modal) -->
+  <div class="curation-list-modal-backdrop" id="curation-list-modal" aria-hidden="true">
+    <div class="curation-list-modal">
+      <button class="modal-close-btn" id="btn-close-curation-list-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header">
+        <h3 id="curation-list-modal-title">추천 도서 전체보기</h3>
+        <p id="curation-list-modal-subtitle">책방지기가 진심을 담아 고른 도서 목록입니다.</p>
+      </div>
+      <div class="curation-list-modal-content">
+        <div class="curation-modal-grid" id="curation-list-modal-grid">
+          <!-- 전체 도서 목록 카드가 동적으로 렌더링될 예정 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 책방 행사 및 기록 전체보기 모달 (Gallery List Modal) -->
+  <div class="curation-list-modal-backdrop" id="gallery-list-modal" aria-hidden="true">
+    <div class="curation-list-modal">
+      <button class="modal-close-btn" id="btn-close-gallery-list-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header">
+        <h3>책방 행사 및 기록 전체보기</h3>
+        <p>동네책방 아인이 걸어온 지난 시간의 따뜻한 기록들입니다.</p>
+
+        <!-- 연도별 필터 칩 영역 -->
+        <div class="gallery-year-chips" id="gallery-year-chips">
+          <!-- JS가 [전체], [2026], [2025] 등의 버튼을 동적 생성 -->
+        </div>
+      </div>
+      <div class="curation-list-modal-content">
+        <div class="gallery-grid" id="gallery-list-modal-grid">
+          <!-- 연도 필터가 적용된 전체 행사 카드들이 렌더링됨 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 원두 및 굿즈 전체보기 모달 (Shop List Modal) -->
+  <div class="curation-list-modal-backdrop" id="shop-list-modal" aria-hidden="true">
+    <div class="curation-list-modal curation-list-modal--wide">
+      <button class="modal-close-btn" id="btn-close-shop-list-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="curation-list-modal-header">
+        <h3>원두 및 드립백 전체보기</h3>
+        <p>아인에서 정성껏 로스팅한 모든 스페셜티 원두와 굿즈 상품입니다.</p>
+      </div>
+      <div class="curation-list-modal-content">
+        <div class="shop-grid shop-grid--full" id="shop-list-modal-grid">
+          <!-- 전체 상품 카드가 JS에서 동적 렌더링됨 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 갤러리 상세 보기 모달 (Gallery Detail Modal) -->
+  <div class="gallery-modal-backdrop" id="gallery-detail-modal" aria-hidden="true">
+    <div class="gallery-modal">
+      <button class="modal-close-btn" id="btn-close-gallery-modal" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="gallery-modal-content">
+        <div class="slider-container">
+          <div class="slider-viewport">
+            <div class="slider-slides">
+              <!-- 슬라이드 동적 렌더링 -->
+            </div>
+          </div>
+          <button class="btn-slide-prev" aria-label="이전 이미지"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="btn-slide-next" aria-label="다음 이미지"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="slider-dots">
+          <!-- 도트 동적 렌더링 -->
+        </div>
+        <div class="gallery-detail-info">
+          <div class="gallery-meta">
+            <span class="gallery-detail-date" id="gallery-detail-date">2026-07-07</span>
+          </div>
+          <h3 class="gallery-detail-title" id="gallery-detail-title">행사 제목</h3>
+          <p class="gallery-detail-desc" id="gallery-detail-desc">행사 상세 설명</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK 및 App Script 로드 (Module) -->
+  <script type="module" src="app.js"></script>
+</body>
+
+</html>
