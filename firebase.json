@@ -6,11 +6,21 @@
       "firebase.json",
       ".firebaserc",
       "**/.*",
+      "**/.*/**",
+      ".*/**",
+      ".*",
+      ".agents/**",
+      ".codex/**",
+      ".impeccable/**",
+      ".firebase/**",
       "**/node_modules/**",
       "docs/**",
       "apps-script/**",
+      "Archive/**",
       "package*.json",
-      "README.md"
+      "README.md",
+      "**/*.md",
+      "server.js"
     ]
   }
 }
