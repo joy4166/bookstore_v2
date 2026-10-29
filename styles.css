@@ -2206,7 +2206,7 @@ label {
 .main-footer {
   background-color: var(--color-primary);
   color: #E2DACF;
-  padding: 48px 0 max(32px, env(safe-area-inset-bottom));
+  padding: 32px 0 max(20px, env(safe-area-inset-bottom));
   padding-left: max(0px, env(safe-area-inset-left));
   padding-right: max(0px, env(safe-area-inset-right));
 }
@@ -2216,37 +2216,37 @@ label {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: 16px;
 }
 
 .footer-brand h3 {
   font-family: var(--font-serif);
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1.125rem;
+  line-height: 1.4;
   font-weight: 700;
   color: #FFFFFF;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .footer-brand p {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #D5CCC2;
 }
 
 .footer-social {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .social-icon {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   background-color: var(--color-primary-light);
   border-radius: var(--border-radius-sm);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #FFFFFF;
 }
 
@@ -2258,12 +2258,12 @@ label {
 .footer-divider {
   height: 1px;
   background-color: rgba(226, 218, 207, 0.12);
-  margin: 24px 0;
+  margin: 16px 0;
 }
 
 .footer-bottom {
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #D5CCC2;
 }
 
@@ -2272,11 +2272,14 @@ label {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 6px 10px;
+  font-size: 0.75rem;
+  color: #C8BFB2;
 }
 
 .footer-divider-dot {
-  color: rgba(226, 218, 207, 0.4);
+  color: rgba(226, 218, 207, 0.35);
+  user-select: none;
 }
 
 .footer-creator {
@@ -2287,29 +2290,22 @@ label {
 }
 
 .creator-label {
-  font-size: 0.75rem;
-  color: #D5CCC2;
+  font-size: 0.6875rem;
+  color: #C8BFB2;
 }
 
 .footer-creator-logo {
-  height: 18px;
+  height: 16px;
   width: auto;
   display: inline-block;
   vertical-align: middle;
-  opacity: 0.95;
+  opacity: 0.92;
   transition: opacity 0.3s var(--ease-base), transform 0.5s var(--ease-base);
 }
 
 .footer-creator-logo:hover {
   opacity: 1;
   transform: translateY(-1px);
-}
-
-.footer-disclaimer {
-  margin-top: 8px;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: #D5CCC2;
 }
 
 /* ==========================================================================
@@ -3735,9 +3731,33 @@ label {
     padding: 20px 14px;
   }
 
+  .main-footer {
+    padding: 24px 0 max(16px, env(safe-area-inset-bottom));
+  }
+
+  .footer-top {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .footer-social {
+    justify-content: center;
+  }
+
+  .footer-divider {
+    margin: 12px 0;
+  }
+
+  .footer-business-info {
+    font-size: 0.6875rem;
+    gap: 3px 6px;
+    line-height: 1.5;
+  }
+
   .footer-bottom-content {
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
   }
 
   /* Curation Modal */
@@ -3941,8 +3961,8 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
@@ -3951,13 +3971,13 @@ label {
   background: none;
   border: none;
   color: #E8E1D5;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 5px;
+  padding: 2px 6px;
   border-radius: var(--border-radius-xs);
   transition: color 0.2s var(--ease-base), background-color 0.2s var(--ease-base);
 }
@@ -3972,7 +3992,7 @@ label {
 
 .footer-sub-link {
   color: #D4CABB;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-decoration: none;
   transition: color 0.2s var(--ease-base);
 }
@@ -3988,12 +4008,12 @@ label {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 6px 10px;
-  max-width: 860px;
-  margin: 0 auto 12px auto;
-  font-size: 0.8125rem;
-  color: #D4CABB;
-  line-height: 1.6;
+  gap: 4px 8px;
+  max-width: 880px;
+  margin: 0 auto 8px auto;
+  font-size: 0.75rem;
+  color: #C8BFB2;
+  line-height: 1.5;
   text-align: center;
 }
 
