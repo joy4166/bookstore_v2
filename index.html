@@ -21,7 +21,7 @@
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nanum+Myeongjo:wght@400;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=17">
   <link rel="icon" href="assets/favicon.png" type="image/png">
 </head>
 
@@ -528,7 +528,24 @@
             <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 개인정보처리방침
           </button>
           <span class="footer-divider-dot">·</span>
+          <button type="button" class="footer-terms-btn" id="btn-open-terms-modal" aria-haspopup="dialog">
+            <i class="fa-solid fa-file-contract" aria-hidden="true"></i> 이용약관
+          </button>
+          <span class="footer-divider-dot">·</span>
           <a href="#about" class="footer-sub-link">책방 이용안내 및 위치</a>
+        </div>
+        <div class="footer-business-info">
+          <span>상호: 동네책방 아인</span>
+          <span class="footer-divider-dot">·</span>
+          <span>대표자: 임영혜</span>
+          <span class="footer-divider-dot">·</span>
+          <span>사업자등록번호: 817-10-02365</span>
+          <span class="footer-divider-dot">·</span>
+          <span>업태/종목: 도소매·음식 / 서점·카페</span>
+          <span class="footer-divider-dot">·</span>
+          <span>사업장 소재지: 부산광역시 연제구 월드컵대로221, 다우빌딩 2층</span>
+          <span class="footer-divider-dot">·</span>
+          <span>문의 전화: 051-868-2210</span>
         </div>
         <div class="footer-bottom-content">
           <span class="footer-copyright">&copy; 2026 동네책방 아인 AYIN. All Rights Reserved.</span>
@@ -538,7 +555,7 @@
             <img src="assets/justjoy_logo_light.png" alt="JUSTJOY" class="footer-creator-logo" width="86" height="18" loading="lazy" decoding="async">
           </span>
         </div>
-        <p class="footer-disclaimer">개인정보 보호 안내: 공간 대여 신청 시 입력된 개인정보는 예약 확인 및 이용 안내 목적으로만 활용되며, 이용 완료 후 관련 법령에 따라 안전하게 파기됩니다.</p>
+        <p class="footer-disclaimer">개인정보 보호 및 이용 안내: 공간 대여 신청 시 입력된 개인정보는 예약 확인 및 이용 안내 목적으로만 활용되며, 이용 완료 후 관련 법령에 따라 안전하게 파기됩니다.</p>
       </div>
     </div>
   </footer>
@@ -786,7 +803,8 @@
           <h4>제7조 (개인정보 보호책임자 및 고충처리)</h4>
           <p>책방은 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제를 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
           <div class="privacy-cpo-card">
-            <div class="cpo-row"><span>개인정보 보호책임자</span><strong>임영혜 (동네책방 아인 대표 책방지기)</strong></div>
+            <div class="cpo-row"><span>상호 및 대표자</span><strong>동네책방 아인 (대표 임영혜)</strong></div>
+            <div class="cpo-row"><span>사업자등록번호</span><span>817-10-02365 (도소매·음식 / 서점·카페)</span></div>
             <div class="cpo-row"><span>전화번호</span><span>051-868-2210</span></div>
             <div class="cpo-row"><span>전자우편</span><span>ayin_bookstore@naver.com</span></div>
             <div class="cpo-row"><span>사업장 주소</span><span>부산광역시 연제구 월드컵대로221 (다우빌딩 2층, 거제역 7번 출구)</span></div>
@@ -815,8 +833,102 @@
     </div>
   </div>
 
+  <!-- 이용약관 전문 모달 (Terms of Service Modal) -->
+  <div class="terms-modal-backdrop" id="terms-modal" aria-hidden="true">
+    <div class="terms-modal" role="dialog" aria-modal="true" aria-labelledby="terms-modal-title">
+      <button class="modal-close-btn" id="btn-close-terms-modal" aria-label="이용약관 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="terms-modal-header">
+        <span class="terms-modal-badge"><i class="fa-solid fa-file-contract" aria-hidden="true"></i> 서비스 및 공간 대여 표준약관</span>
+        <h3 id="terms-modal-title">동네책방 아인 이용약관</h3>
+        <p class="terms-modal-meta">시행일자: 2026년 9월 3일 | 최종 개정일: 2026년 10월 29일</p>
+      </div>
+      <div class="terms-modal-body">
+        <div class="terms-lead-box">
+          <p>동네책방 아인(이하 '책방'이라 함)을 찾아주셔서 진심으로 감사드립니다. 본 약관은 책방이 운영하는 웹사이트 및 독립 서재 공간 대여(이하 '대관 서비스')의 이용 조건, 예약 및 환불 기준, 이용자와 책방 간의 권리·의무를 규정합니다. 책방과 이용자가 상호 존중 속에 편안하고 따뜻한 문학적 쉼표를 누릴 수 있도록 정성을 다하겠습니다.</p>
+        </div>
+
+        <article class="terms-section-block">
+          <h4>제1조 (목적 및 사업자 정보)</h4>
+          <p>1. 본 약관은 동네책방 아인(사업자등록번호: 817-10-02365, 대표자: 임영혜, 이하 '책방'이라 함)이 제공하는 온라인 정보 안내 서비스와 오프라인 단독 서재 공간 대여 서비스의 이용 조건 및 절차, 책임에 관한 제반 사항을 규정함을 목적으로 합니다.</p>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제2조 (서비스의 내용 및 외부 상품 연동)</h4>
+          <p>1. 책방은 사이트를 통해 도서 큐레이션 서평 안내, 카페 메뉴 안내, 자체 로스팅 원두 라인업 소개, 단독 서재 공간 대여 실시간 일정 조회 및 신청 접수 서비스를 제공합니다.</p>
+          <p>2. 사이트에 소개된 원두, 드립백 등의 실물 상품 구매는 네이버 스마트스토어 등 공식 외부 판매처로 연결되어 결제 및 배송이 진행되며, 해당 거래 조건 및 배송·교환 정책은 판매 플랫폼의 규정에 따릅니다.</p>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제3조 (공간 대여 예약 신청 및 확정)</h4>
+          <p>1. 대관 서비스를 이용하고자 하는 자는 사이트의 대관 신청 폼을 통하여 성명, 연락처, 희망 일시(최소 2시간 이상), 이용 인원, 이용 목적을 작성하여 신청합니다.</p>
+          <p>2. 대관 계약은 이용자의 신청 접수 후 책방지기가 일정 중복 여부를 검토하여 이용 안내 및 입금 계좌를 통보하고, 이용자가 대여 요금을 입금하여 책방이 예약을 최종 승인·확정한 시점에 성립합니다.</p>
+          <p>3. 책방은 독서 모임, 스터디, 세미나, 소규모 워크숍 등 건전한 문화 모임을 적극 환영하며, 과도한 음주 파티, 소란 행위, 미풍양속을 저해하거나 시설을 훼손할 우려가 있는 모임은 예약이 거절되거나 취소될 수 있습니다.</p>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제4조 (대관 요금 및 취소·환불 규정)</h4>
+          <p>책방은 이용자의 소중한 일정과 타 고객의 예약 기회를 함께 보호하기 위해 아래와 같이 명확하고 공정한 환불 기준을 운영합니다.</p>
+          <div class="terms-table-wrapper">
+            <table class="terms-table">
+              <thead>
+                <tr>
+                  <th scope="col">구분</th>
+                  <th scope="col">기준 및 일정</th>
+                  <th scope="col">환불 금액</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>이용일 3일 전 취소</strong></td>
+                  <td>대관 예정일 3일 전 자정(24:00)까지 취소 요청 시</td>
+                  <td><strong>기납부 대여 요금 전액(100%) 환불</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>이용일 2일 전 ~ 당일 취소</strong></td>
+                  <td>대관 예정일 2일 전부터 당일 취소 또는 불참(노쇼)</td>
+                  <td><strong>환불 불가</strong> (타 고객의 이용 기회 제한 손해 보전)</td>
+                </tr>
+                <tr>
+                  <td><strong>불가항력적 사유 취소</strong></td>
+                  <td>천재지변, 기상악화 또는 책방 부득이한 사정 시</td>
+                  <td><strong>기납부 대여 요금 전액(100%) 즉시 환불</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제5조 (공간 이용 수칙 및 시설물 보호)</h4>
+          <p>1. 이용자는 승인된 대관 시간(시작 및 종료 시간)을 엄수하여야 하며, 다음 이용자를 위하여 퇴실 시 간단한 뒷정리 및 분리수거를 완료하여야 합니다.</p>
+          <p>2. 책방 내 비치된 큐레이션 도서, 원목 가구, 음향 및 조명 기기는 책방의 소중한 자산입니다. 소중히 다루어 주시기 바랍니다.</p>
+          <p>3. 이용자의 고의 또는 중대한 과실로 인하여 시설물, 비품, 도서가 파손되거나 훼손·분실된 경우, 이용자는 원상복구에 소요되는 실비를 변상하여야 합니다.</p>
+          <p>4. 쾌적한 독서 환경을 위해 책방 전 구역은 절대 금연이며, 외부 음식물 반입이나 반려동물 동반은 사전에 책방지기와 조율하셔야 합니다.</p>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제6조 (면책 조항)</h4>
+          <p>1. 책방은 천재지변 또는 이에 준하는 불가항력으로 인하여 서비스를 제공할 수 없는 경우에는 대관 불이행에 대한 책임이 면제됩니다.</p>
+          <p>2. 이용자가 개인 귀중품 관리를 소홀히 하여 발생한 분실 및 도난 사고에 대해서는 책방이 책임을 지지 않습니다.</p>
+          <p>3. 사이트 내 링크를 통하여 연결된 외부 사이트(네이버 스마트스토어 등)에서 이루어진 물품 거래는 해당 플랫폼의 거래 약관에 따르며 책방은 관여하지 않습니다.</p>
+        </article>
+
+        <article class="terms-section-block">
+          <h4>제7조 (분쟁 해결 및 관할)</h4>
+          <p>1. 책방과 이용자 간에 서비스 이용과 관련하여 분쟁이 발생한 경우, 양 당사자는 상호 협의를 통하여 원만히 해결하도록 노력합니다.</p>
+          <p>2. 분쟁이 해결되지 아니하여 소송이 제기될 경우, 책방의 사업장 소재지를 관할하는 법원(부산지방법원)을 관할 법원으로 합니다.</p>
+        </article>
+      </div>
+      <div class="terms-modal-footer">
+        <button type="button" class="btn-primary" id="btn-confirm-terms-modal">확인 및 닫기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK 및 App Script 로드 (Module) -->
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 
 </html>

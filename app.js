@@ -1454,7 +1454,7 @@ const init = () => {
     modalBackdrop.classList.remove('open');
     modalBackdrop.setAttribute('aria-hidden', 'true');
 
-    const anyOtherOpen = document.querySelector('.review-modal-backdrop.open, .curation-list-modal-backdrop.open, .gallery-modal-backdrop.open, .success-modal-backdrop.open, .privacy-modal-backdrop.open');
+    const anyOtherOpen = document.querySelector('.review-modal-backdrop.open, .curation-list-modal-backdrop.open, .gallery-modal-backdrop.open, .success-modal-backdrop.open, .privacy-modal-backdrop.open, .terms-modal-backdrop.open');
     if (!anyOtherOpen) {
       document.body.style.overflow = '';
     }
@@ -2487,6 +2487,35 @@ const init = () => {
   if (privacyModal) {
     privacyModal.addEventListener('click', (e) => {
       if (e.target === privacyModal) closePrivacyModal();
+    });
+  }
+
+  // 이용약관 전문 모달 연동
+  const termsModal = document.getElementById('terms-modal');
+  const btnOpenTermsModal = document.getElementById('btn-open-terms-modal');
+  const btnCloseTermsModal = document.getElementById('btn-close-terms-modal');
+  const btnConfirmTermsModal = document.getElementById('btn-confirm-terms-modal');
+
+  function openTermsModal(triggerEl) {
+    openAccessibleModal(termsModal, triggerEl);
+  }
+
+  function closeTermsModal() {
+    closeAccessibleModal(termsModal);
+  }
+
+  if (btnOpenTermsModal) {
+    btnOpenTermsModal.addEventListener('click', () => openTermsModal(btnOpenTermsModal));
+  }
+  if (btnCloseTermsModal) {
+    btnCloseTermsModal.addEventListener('click', closeTermsModal);
+  }
+  if (btnConfirmTermsModal) {
+    btnConfirmTermsModal.addEventListener('click', closeTermsModal);
+  }
+  if (termsModal) {
+    termsModal.addEventListener('click', (e) => {
+      if (e.target === termsModal) closeTermsModal();
     });
   }
 

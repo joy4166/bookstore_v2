@@ -3943,9 +3943,11 @@ label {
   justify-content: center;
   gap: 12px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
 }
 
-.footer-privacy-btn {
+.footer-privacy-btn,
+.footer-terms-btn {
   background: none;
   border: none;
   color: #E8E1D5;
@@ -3960,7 +3962,8 @@ label {
   transition: color 0.2s var(--ease-base), background-color 0.2s var(--ease-base);
 }
 
-.footer-privacy-btn:hover {
+.footer-privacy-btn:hover,
+.footer-terms-btn:hover {
   color: #FFFFFF;
   background-color: rgba(255, 255, 255, 0.08);
   text-decoration: underline;
@@ -3980,10 +3983,25 @@ label {
   text-underline-offset: 4px;
 }
 
+.footer-business-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px 10px;
+  max-width: 860px;
+  margin: 0 auto 12px auto;
+  font-size: 0.8125rem;
+  color: #D4CABB;
+  line-height: 1.6;
+  text-align: center;
+}
+
 /* ==========================================================================
-   개인정보 처리방침 전문 모달 (Privacy Policy Full Modal)
+   개인정보 처리방침 & 이용약관 모달 (Legal Policy & Terms Modals)
    ========================================================================== */
-.privacy-modal-backdrop {
+.privacy-modal-backdrop,
+.terms-modal-backdrop {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -4001,13 +4019,15 @@ label {
   transition: opacity 0.28s var(--ease-base), visibility 0.28s;
 }
 
-.privacy-modal-backdrop.open {
+.privacy-modal-backdrop.open,
+.terms-modal-backdrop.open {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
-.privacy-modal {
+.privacy-modal,
+.terms-modal {
   background-color: var(--bg-primary);
   width: 92%;
   max-width: 840px;
@@ -4025,20 +4045,23 @@ label {
   transition: transform 0.2s ease-in, opacity 0.2s ease-in;
 }
 
-.privacy-modal-backdrop.open .privacy-modal {
+.privacy-modal-backdrop.open .privacy-modal,
+.terms-modal-backdrop.open .terms-modal {
   opacity: 1;
   transform: translateY(0) scale(1);
   transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.28s var(--ease-base);
 }
 
-.privacy-modal-header {
+.privacy-modal-header,
+.terms-modal-header {
   margin-bottom: 20px;
   text-align: center;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.privacy-modal-badge {
+.privacy-modal-badge,
+.terms-modal-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -4051,7 +4074,8 @@ label {
   margin-bottom: 10px;
 }
 
-.privacy-modal-header h3 {
+.privacy-modal-header h3,
+.terms-modal-header h3 {
   font-family: var(--font-serif);
   font-size: 1.625rem;
   line-height: 1.35;
@@ -4060,12 +4084,14 @@ label {
   margin-bottom: 6px;
 }
 
-.privacy-modal-meta {
+.privacy-modal-meta,
+.terms-modal-meta {
   color: var(--text-muted);
   font-size: 0.8125rem;
 }
 
-.privacy-modal-body {
+.privacy-modal-body,
+.terms-modal-body {
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 12px;
@@ -4074,24 +4100,29 @@ label {
   gap: 24px;
 }
 
-.privacy-modal-body::-webkit-scrollbar {
+.privacy-modal-body::-webkit-scrollbar,
+.terms-modal-body::-webkit-scrollbar {
   width: 6px;
 }
 
-.privacy-modal-body::-webkit-scrollbar-track {
+.privacy-modal-body::-webkit-scrollbar-track,
+.terms-modal-body::-webkit-scrollbar-track {
   background: rgba(78, 54, 41, 0.04);
 }
 
-.privacy-modal-body::-webkit-scrollbar-thumb {
+.privacy-modal-body::-webkit-scrollbar-thumb,
+.terms-modal-body::-webkit-scrollbar-thumb {
   background: rgba(95, 116, 100, 0.3);
-  border-radius: 3px;
+  border-radius: var(--border-radius-xs);
 }
 
-.privacy-modal-body::-webkit-scrollbar-thumb:hover {
+.privacy-modal-body::-webkit-scrollbar-thumb:hover,
+.terms-modal-body::-webkit-scrollbar-thumb:hover {
   background: rgba(95, 116, 100, 0.5);
 }
 
-.privacy-lead-box {
+.privacy-lead-box,
+.terms-lead-box {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   padding: 14px 18px;
@@ -4101,7 +4132,14 @@ label {
   color: var(--text-main);
 }
 
-.privacy-section-block h4 {
+.privacy-section-block,
+.terms-section-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-section-block h4,
+.terms-section-block h4 {
   font-family: var(--font-serif);
   font-size: 1.0625rem;
   font-weight: 700;
@@ -4112,14 +4150,16 @@ label {
   gap: 8px;
 }
 
-.privacy-section-block p {
+.privacy-section-block p,
+.terms-section-block p {
   font-size: 0.875rem;
   line-height: 1.7;
   color: var(--text-main);
   margin-bottom: 10px;
 }
 
-.privacy-table-wrapper {
+.privacy-table-wrapper,
+.terms-table-wrapper {
   overflow-x: auto;
   margin: 10px 0;
   padding: 12px;
@@ -4128,7 +4168,8 @@ label {
   border-radius: var(--border-radius-sm);
 }
 
-.privacy-table {
+.privacy-table,
+.terms-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
@@ -4138,7 +4179,8 @@ label {
   overflow: hidden;
 }
 
-.privacy-table th {
+.privacy-table th,
+.terms-table th {
   background-color: var(--bg-secondary);
   color: var(--color-primary);
   font-weight: 700;
@@ -4147,18 +4189,21 @@ label {
   white-space: nowrap;
 }
 
-.privacy-table td {
+.privacy-table td,
+.terms-table td {
   padding: 10px 14px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
   line-height: 1.6;
 }
 
-.privacy-table tbody tr:last-child td {
+.privacy-table tbody tr:last-child td,
+.terms-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.privacy-bullet-list {
+.privacy-bullet-list,
+.terms-bullet-list {
   list-style: disc;
   padding-left: 20px;
   display: flex;
@@ -4169,11 +4214,13 @@ label {
   line-height: 1.65;
 }
 
-.privacy-bullet-list li strong {
+.privacy-bullet-list li strong,
+.terms-bullet-list li strong {
   color: var(--color-primary);
 }
 
-.privacy-cpo-card {
+.privacy-cpo-card,
+.terms-highlight-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -4200,7 +4247,8 @@ label {
   color: var(--color-primary);
 }
 
-.privacy-modal-footer {
+.privacy-modal-footer,
+.terms-modal-footer {
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid var(--border-color);
@@ -4208,7 +4256,8 @@ label {
   justify-content: flex-end;
 }
 
-.privacy-modal-footer .btn-primary {
+.privacy-modal-footer .btn-primary,
+.terms-modal-footer .btn-primary {
   padding: 10px 24px;
   background-color: var(--color-accent);
   color: #FFFFFF;
@@ -4220,17 +4269,20 @@ label {
   transition: background-color 0.2s var(--ease-base);
 }
 
-.privacy-modal-footer .btn-primary:hover {
+.privacy-modal-footer .btn-primary:hover,
+.terms-modal-footer .btn-primary:hover {
   background-color: var(--color-accent-hover);
 }
 
 @media (max-width: 600px) {
-  .privacy-modal {
+  .privacy-modal,
+  .terms-modal {
     padding: 24px 16px;
     width: 95%;
   }
 
-  .privacy-modal-header h3 {
+  .privacy-modal-header h3,
+  .terms-modal-header h3 {
     font-size: 1.35rem;
   }
 
@@ -4243,7 +4295,8 @@ label {
     width: auto;
   }
 
-  .privacy-modal-footer .btn-primary {
+  .privacy-modal-footer .btn-primary,
+  .terms-modal-footer .btn-primary {
     width: 100%;
   }
 }
