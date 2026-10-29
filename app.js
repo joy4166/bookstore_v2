@@ -910,12 +910,32 @@ const init = () => {
       ]);
     }
 
-    const introController = startCanvasBookIntro(introCanvas);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let introController = null;
     let introFinished = false;
+
+    if (!prefersReducedMotion) {
+      introController = startCanvasBookIntro(introCanvas);
+    } else if (introCanvas) {
+      introCanvas.style.display = 'none';
+    }
 
     function openBookAndEnter() {
       if (introFinished) return;
       introFinished = true;
+
+      if (prefersReducedMotion || !introController) {
+        if (loadingOverlay) {
+          loadingOverlay.classList.add('hidden');
+        }
+        setTimeout(() => {
+          if (introController) introController.cleanup();
+          if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+          }
+        }, 300);
+        return;
+      }
 
       introController.triggerOpen();
 
@@ -933,9 +953,9 @@ const init = () => {
       }, 1150);
     }
 
-    // 손글씨(1.35초) 감상을 위한 최소 시간 보장
+    // 손글씨(1.35초) 감상을 위한 최소 시간 보장 (reduced-motion 시 대기 생략)
     const introStartTime = performance.now();
-    const MIN_INTRO_DURATION = 1500;
+    const MIN_INTRO_DURATION = prefersReducedMotion ? 0 : 1500;
 
     try {
       // 보안 취약점 해소: 클라이언트 임의 DB 초기화 제거 및 Promise.all 병렬 로딩 적용
@@ -1075,24 +1095,28 @@ const init = () => {
     });
   });
 
-  // 데스크톱 내비게이션 Scroll-Spy (모바일 툴바 높이 변화에 영향받지 않는 패시브 스크롤 연동)
+  // 데스크톱 내비게이션 Scroll-Spy (섹션 오프셋 캐싱으로 스크롤 중 레이아웃 스래싱 방지)
+  let sectionPositions = [];
+  function updateSectionPositions() {
+    sectionPositions = Array.from(sections).map(section => ({
+      id: section.getAttribute('id'),
+      top: section.offsetTop,
+      bottom: section.offsetTop + section.offsetHeight
+    }));
+  }
+  updateSectionPositions();
+  window.addEventListener('resize', updateSectionPositions, { passive: true });
+
   let spyTicking = false;
   window.addEventListener('scroll', () => {
     if (window.innerWidth <= 768 || spyTicking) return;
     spyTicking = true;
     requestAnimationFrame(() => {
-      let current = '';
       const scrollPosition = window.scrollY + 124;
-      sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-          current = section.getAttribute('id');
-        }
-      });
-      if (current) {
+      const matched = sectionPositions.find(p => scrollPosition >= p.top && scrollPosition < p.bottom);
+      if (matched) {
         navLinks.forEach(link => {
-          link.classList.toggle('active', link.getAttribute('href') === `#${current}`);
+          link.classList.toggle('active', link.getAttribute('href') === `#${matched.id}`);
         });
       }
       spyTicking = false;
@@ -1262,7 +1286,12 @@ const init = () => {
     const keepers = keepersData ? (keepersData.keepers || []) : [];
 
     if (keepers.length === 0) {
-      curationContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">아직 등록된 책방지기가 없습니다.</div>';
+      curationContainer.innerHTML = `
+        <div class="editorial-empty-state">
+          <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+          <p>아직 등록된 책방지기가 없습니다.<br>새로운 큐레이터의 서재가 곧 열립니다.</p>
+        </div>
+      `;
       return;
     }
 
@@ -1311,7 +1340,12 @@ const init = () => {
     `;
 
     if (displayBooks.length === 0) {
-      html += `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">아직 등록된 도서가 없습니다.</div>`;
+      html += `
+        <div class="editorial-empty-state">
+          <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+          <p>이 책방지기가 추천한 도서가 아직 없습니다.<br>사서의 서평 노트를 정성껏 준비하고 있습니다.</p>
+        </div>
+      `;
     } else {
       displayBooks.forEach(b => {
         html += `
@@ -1319,7 +1353,7 @@ const init = () => {
             <div class="book-cover-area">
               <span class="curation-badge">${escapeHTML(b.category)}</span>
               <div class="book-cover-object">
-                <img src="${escapeHTML(b.cover)}" alt="${escapeHTML(b.title)} 책 표지" class="book-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
+                <img src="${escapeHTML(b.cover)}" alt="${escapeHTML(b.title)} 책 표지" class="book-cover" width="124" height="176" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
               </div>
             </div>
             <div class="book-info">
@@ -1358,8 +1392,82 @@ const init = () => {
     }
   }
 
+  // ==========================================================================
+  // 모달 포커스 트랩 및 접근성 관리자 (A11y & Focus Management)
+  // ==========================================================================
+  const modalFocusHistory = new Map();
+
+  function trapFocus(modalBackdrop) {
+    const focusableSelectors = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableElements = Array.from(modalBackdrop.querySelectorAll(focusableSelectors));
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const closeBtn = modalBackdrop.querySelector('.modal-close-btn, .btn-success-close') || firstElement;
+    setTimeout(() => {
+      try { closeBtn.focus(); } catch (e) {}
+    }, 50);
+
+    const keyHandler = (e) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement || !modalBackdrop.contains(document.activeElement)) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement || !modalBackdrop.contains(document.activeElement)) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    modalBackdrop.addEventListener('keydown', keyHandler);
+    modalBackdrop._keyHandler = keyHandler;
+  }
+
+  function releaseFocusTrap(modalBackdrop) {
+    if (modalBackdrop && modalBackdrop._keyHandler) {
+      modalBackdrop.removeEventListener('keydown', modalBackdrop._keyHandler);
+      delete modalBackdrop._keyHandler;
+    }
+  }
+
+  function openAccessibleModal(modalBackdrop, triggerEl) {
+    if (!modalBackdrop) return;
+    const trigger = triggerEl || document.activeElement;
+    if (trigger && typeof trigger.focus === 'function') {
+      modalFocusHistory.set(modalBackdrop, trigger);
+    }
+    modalBackdrop.classList.add('open');
+    modalBackdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    trapFocus(modalBackdrop);
+  }
+
+  function closeAccessibleModal(modalBackdrop) {
+    if (!modalBackdrop) return;
+    releaseFocusTrap(modalBackdrop);
+    modalBackdrop.classList.remove('open');
+    modalBackdrop.setAttribute('aria-hidden', 'true');
+
+    const anyOtherOpen = document.querySelector('.review-modal-backdrop.open, .curation-list-modal-backdrop.open, .gallery-modal-backdrop.open, .success-modal-backdrop.open, .privacy-modal-backdrop.open');
+    if (!anyOtherOpen) {
+      document.body.style.overflow = '';
+    }
+
+    const previousTrigger = modalFocusHistory.get(modalBackdrop);
+    if (previousTrigger && typeof previousTrigger.focus === 'function') {
+      try { previousTrigger.focus(); } catch (e) {}
+      modalFocusHistory.delete(modalBackdrop);
+    }
+  }
+
   // 전체 도서 모달 팝업 렌더링
-  function openCurationListModal() {
+  function openCurationListModal(triggerEl) {
     const currentKeeper = keepersData.keepers.find(k => k.id === activeKeeperId);
     if (!currentKeeper) return;
 
@@ -1371,7 +1479,12 @@ const init = () => {
       .sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
 
     if (keeperBooks.length === 0) {
-      curationListModalGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px 0;">등록된 도서가 없습니다.</div>`;
+      curationListModalGrid.innerHTML = `
+        <div class="editorial-empty-state">
+          <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+          <p>등록된 도서가 없습니다.<br>새로운 큐레이션 도서가 추가되면 이곳에서 전체 목록을 확인하실 수 있습니다.</p>
+        </div>
+      `;
     } else {
       keeperBooks.forEach(b => {
         const div = document.createElement('div');
@@ -1380,7 +1493,7 @@ const init = () => {
           <div class="book-cover-area">
             <span class="curation-badge">${escapeHTML(b.category)}</span>
             <div class="book-cover-object">
-              <img src="${escapeHTML(b.cover)}" alt="${escapeHTML(b.title)} 책 표지" class="book-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
+              <img src="${escapeHTML(b.cover)}" alt="${escapeHTML(b.title)} 책 표지" class="book-cover" width="124" height="176" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
             </div>
           </div>
           <div class="book-info">
@@ -1396,20 +1509,17 @@ const init = () => {
       });
     }
 
-    curationListModal.classList.add('open');
-    curationListModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    openAccessibleModal(curationListModal, triggerEl);
   }
 
   function closeCurationListModal() {
-    curationListModal.classList.remove('open');
-    curationListModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    closeAccessibleModal(curationListModal);
   }
 
   document.body.addEventListener('click', (e) => {
-    if (e.target.closest('#btn-more-curation')) {
-      openCurationListModal();
+    const moreBtn = e.target.closest('#btn-more-curation');
+    if (moreBtn) {
+      openCurationListModal(moreBtn);
     }
   });
   closeCurationModalBtn.addEventListener('click', closeCurationListModal);
@@ -1430,8 +1540,7 @@ const init = () => {
   const modalBookExcerpt = document.getElementById('modal-book-excerpt');
   const modalReviewContent = document.getElementById('modal-review-content');
 
-  function openReviewModal(bookId) {
-    // 로컬스토리지 책 데이터 조회
+  function openReviewModal(bookId, triggerEl) {
     const data = (keepersData.books || []).find(b => b.id === bookId);
     if (!data) return;
 
@@ -1449,20 +1558,11 @@ const init = () => {
     }
     modalReviewContent.textContent = data.review;
 
-    reviewModal.classList.add('open');
-    reviewModal.setAttribute('aria-hidden', 'false');
-    // 모달을 모달 위에 띄울 수 있으므로 대처
-    document.body.style.overflow = 'hidden';
+    openAccessibleModal(reviewModal, triggerEl);
   }
 
   function closeReviewModal() {
-    reviewModal.classList.remove('open');
-    reviewModal.setAttribute('aria-hidden', 'true');
-
-    // 만약 전체보기 목록 모달이 여전히 열려있는 상태라면 스크롤 방지를 살려둠
-    if (!curationListModal.classList.contains('open')) {
-      document.body.style.overflow = '';
-    }
+    closeAccessibleModal(reviewModal);
   }
 
   // **이벤트 위임**: 동적으로 생성되는 모든 '노트 읽기' 버튼 이벤트를 포착
@@ -1470,7 +1570,7 @@ const init = () => {
     const btn = e.target.closest('.btn-read-review');
     if (btn) {
       const bookId = btn.getAttribute('data-book-id');
-      openReviewModal(bookId);
+      openReviewModal(bookId, btn);
     }
   });
 
@@ -1481,17 +1581,20 @@ const init = () => {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (reviewModal.classList.contains('open')) {
+      if (galleryModal && galleryModal.classList.contains('open')) {
+        closeGalleryModal();
+      } else if (reviewModal && reviewModal.classList.contains('open')) {
         closeReviewModal();
-      } else if (curationListModal.classList.contains('open')) {
+      } else if (successModal && successModal.classList.contains('open')) {
+        closeSuccessModal();
+      } else if (curationListModal && curationListModal.classList.contains('open')) {
         closeCurationListModal();
       } else if (galleryListModal && galleryListModal.classList.contains('open')) {
         closeGalleryListModal();
-      } else {
-        const sm = document.getElementById('shop-list-modal');
-        if (sm && sm.classList.contains('open') && typeof closeShopListModal === 'function') {
-          closeShopListModal();
-        }
+      } else if (shopListModal && shopListModal.classList.contains('open')) {
+        closeShopListModal();
+      } else if (mobileNavMenu && mobileNavMenu.classList.contains('open')) {
+        toggleMobileMenu();
       }
     }
   });
@@ -1586,7 +1689,14 @@ const init = () => {
 
   if (rentalDateInput) {
     rentalDateInput.addEventListener('change', (e) => {
-      updateRentalTimeOptions(e.target.value);
+      const selectedVal = e.target.value;
+      updateRentalTimeOptions(selectedVal);
+      // 달력의 선택 상태 동기화
+      document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+      const matchingCell = document.querySelector(`.day-cell[data-date="${selectedVal}"]`);
+      if (matchingCell) {
+        matchingCell.classList.add('selected');
+      }
     });
   }
 
@@ -1599,6 +1709,9 @@ const init = () => {
     const hours = parseInt(rentalHoursInput.value, 10) || 2;
     const total = hours * hourlyRate;
     pricePreviewText.textContent = `${hours}시간 × ${hourlyRate.toLocaleString()}원 = ${total.toLocaleString()}원`;
+    pricePreviewText.classList.remove('price-updated');
+    void pricePreviewText.offsetWidth; // 리플로우를 통한 애니메이션 재실행
+    pricePreviewText.classList.add('price-updated');
   }
 
   if (rentalHoursInput) {
@@ -1614,7 +1727,12 @@ const init = () => {
       rentalFormError.hidden = true;
       rentalFormError.textContent = '';
     }
-    rentalForm.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    rentalForm.querySelectorAll('.input-error').forEach(el => {
+      el.classList.remove('input-error');
+      el.removeAttribute('aria-invalid');
+    });
+    const agreeGroup = document.getElementById('rental-privacy-agreement-group');
+    if (agreeGroup) agreeGroup.classList.remove('input-error');
   }
 
   function showRentalFormError(message, fieldId) {
@@ -1623,12 +1741,48 @@ const init = () => {
       rentalFormError.hidden = false;
     }
     if (fieldId) {
+      if (fieldId === 'rental-privacy-agree') {
+        const agreeGroup = document.getElementById('rental-privacy-agreement-group');
+        if (agreeGroup) agreeGroup.classList.add('input-error');
+      }
       const fieldEl = document.getElementById(fieldId);
       if (fieldEl) {
         fieldEl.classList.add('input-error');
+        fieldEl.setAttribute('aria-invalid', 'true');
         fieldEl.focus();
       }
     }
+  }
+
+  // 개인정보 수집 및 이용 세부내용 아코디언 토글
+  const btnTogglePrivacyDetails = document.getElementById('btn-toggle-privacy-details');
+  const rentalPrivacyDetailsBox = document.getElementById('rental-privacy-details-box');
+  if (btnTogglePrivacyDetails && rentalPrivacyDetailsBox) {
+    btnTogglePrivacyDetails.addEventListener('click', () => {
+      const isExpanded = btnTogglePrivacyDetails.getAttribute('aria-expanded') === 'true';
+      btnTogglePrivacyDetails.setAttribute('aria-expanded', String(!isExpanded));
+      rentalPrivacyDetailsBox.hidden = isExpanded;
+    });
+  }
+
+  // 개인정보 수집 동의 브라우저 기본 말풍선 툴팁 ("체크해 주세요") 연동
+  const privacyAgree = document.getElementById('rental-privacy-agree');
+  if (privacyAgree) {
+    const updatePrivacyMessage = () => {
+      if (!privacyAgree.checked) {
+        privacyAgree.setCustomValidity('개인정보 수집 및 이용 동의에 체크해 주세요.');
+      } else {
+        privacyAgree.setCustomValidity('');
+      }
+    };
+    updatePrivacyMessage();
+    privacyAgree.addEventListener('change', updatePrivacyMessage);
+    privacyAgree.addEventListener('input', updatePrivacyMessage);
+    privacyAgree.addEventListener('invalid', () => {
+      updatePrivacyMessage();
+      const agreeGroup = document.getElementById('rental-privacy-agreement-group');
+      if (agreeGroup) agreeGroup.classList.add('input-error');
+    });
   }
 
   rentalForm.addEventListener('input', clearRentalFormError);
@@ -1651,6 +1805,46 @@ const init = () => {
       return;
     }
 
+    if (privacyAgree && !privacyAgree.checked) {
+      privacyAgree.setCustomValidity('개인정보 수집 및 이용 동의에 체크해 주세요.');
+      if (typeof privacyAgree.reportValidity === 'function') {
+        privacyAgree.reportValidity();
+      }
+      showRentalFormError('개인정보 수집 및 이용에 동의하셔야 대관 신청이 가능합니다.', 'rental-privacy-agree');
+      return;
+    }
+
+    if (name.length < 2 || name.length > 50) {
+      showRentalFormError('신청자 성함을 2자 이상 50자 이하로 올바르게 입력해 주세요.', 'rental-name');
+      return;
+    }
+
+    const phoneRegex = /^(01[016789]-?[0-9]{3,4}-?[0-9]{4}|0[2-6][0-9]?-?[0-9]{3,4}-?[0-9]{4})$/;
+    if (!phoneRegex.test(phone)) {
+      showRentalFormError('연락처는 올바른 전화번호 형식(예: 010-1234-5678)으로 입력해 주세요.', 'rental-phone');
+      return;
+    }
+
+    if (date < formattedToday) {
+      showRentalFormError('대여 날짜는 오늘 이후 날짜만 선택하실 수 있습니다.', 'rental-date');
+      return;
+    }
+
+    if (hours < 2 || hours > 8) {
+      showRentalFormError('이용 시간은 최소 2시간부터 최대 8시간까지 가능합니다.', 'rental-hours');
+      return;
+    }
+
+    if (people < 1 || people > 20) {
+      showRentalFormError('신청 인원은 최소 1명부터 최대 20명까지 가능합니다.', 'rental-people');
+      return;
+    }
+
+    if (purpose.length > 500) {
+      showRentalFormError('사용 목적은 500자 이하로 작성해 주세요.', 'rental-purpose');
+      return;
+    }
+
     // 중복 예약(시간대 겹침) 차단 벨리데이터
     const parseTimeToMinutes = (t) => {
       const [h, m] = t.split(':').map(Number);
@@ -1665,7 +1859,7 @@ const init = () => {
       submitBtn.innerHTML = '신청 처리 중... <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>';
     }
 
-    // 1. 해당 날짜의 calendar 일정을 직접 1회 getDoc으로 조회 (rentals 전체 조회 제거하여 보안 충돌 해결)
+    // 1. 해당 날짜의 calendar 일정을 직접 1회 getDoc으로 조회
     getDoc(doc(db, "calendar", date))
       .then(calSnap => {
         if (calSnap.exists()) {
@@ -1700,7 +1894,7 @@ const init = () => {
           }
         } else {
           // calendar에 수동 등록되지 않은 주말(토, 일)은 정기 휴일이므로 기본 차단
-          const dayOfWeek = parseLocalDate(date).getDay(); // 0: 일요일, 6: 토요일
+          const dayOfWeek = parseLocalDate(date).getDay();
           if (dayOfWeek === 0 || dayOfWeek === 6) {
             showRentalFormError('주말(토요일·일요일)은 정기 휴무일입니다. 평일(월~금) 날짜를 선택해 주세요.', 'rental-date');
             if (submitBtn) {
@@ -1732,20 +1926,15 @@ const init = () => {
           people,
           purpose,
           totalPrice,
-          status: 'pending', // 사용자 온라인 접수는 항상 '대기' 상태로 출발
+          status: 'pending',
           source: 'online',
           createdAt: new Date().toISOString()
         };
 
         addDoc(collection(db, "rentals"), newRental)
           .then((docRef) => {
-            // 책방지기에게 신규 신청 알림 (실패해도 고객 흐름에 영향 없음)
             notifyOwnerOfRental(docRef.id);
-
-            // 성공 모달 노출
-            successModal.classList.add('open');
-            successModal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
+            openAccessibleModal(successModal, submitBtn);
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.innerHTML = '대여 신청하기 <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>';
@@ -1771,9 +1960,7 @@ const init = () => {
   });
 
   function closeSuccessModal() {
-    successModal.classList.remove('open');
-    successModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    closeAccessibleModal(successModal);
     clearRentalFormError();
     rentalForm.reset();
   }
@@ -1866,11 +2053,19 @@ const init = () => {
         cell.setAttribute('title', '예약 가능');
       }
 
+      cell.setAttribute('data-date', dateString);
+      const rentalDateInput = document.getElementById('rental-date');
+      if (rentalDateInput && rentalDateInput.value === dateString) {
+        cell.classList.add('selected');
+      }
+
       cell.innerHTML = cellHtml;
 
-      // 날짜 클릭 시 대관 신청서의 '대여 날짜' 필드에 자동 입력 & 시간 옵션 갱신 & 모바일 스크롤
+      // 날짜 클릭 시 대관 신청서의 '대여 날짜' 필드에 자동 입력 & 선택 상태 전환 & 시간 옵션 갱신 & 모바일 스크롤
       cell.addEventListener('click', () => {
-        const rentalDateInput = document.getElementById('rental-date');
+        document.querySelectorAll('.day-cell.selected').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+
         if (rentalDateInput) {
           rentalDateInput.value = dateString;
           updateRentalTimeOptions(dateString);
@@ -1949,7 +2144,7 @@ const init = () => {
 
     card.innerHTML = `
       <div class="gallery-img-wrapper">
-        <img src="${escapeHTML(thumbUrl)}" alt="${escapeHTML(item.title)}">
+        <img src="${escapeHTML(thumbUrl)}" alt="${escapeHTML(item.title)}" loading="lazy" decoding="async">
       </div>
       <div class="gallery-card-info">
         <span class="gallery-card-date">${escapeHTML(item.date)}</span>
@@ -1958,7 +2153,7 @@ const init = () => {
       </div>
     `;
 
-    card.addEventListener('click', () => openGalleryModal(item));
+    card.addEventListener('click', (e) => openGalleryModal(item, card));
     return card;
   }
 
@@ -1968,7 +2163,12 @@ const init = () => {
     galleryGrid.innerHTML = '';
 
     if (!galleryData || galleryData.length === 0) {
-      galleryGrid.innerHTML = '<div class="gallery-empty">아직 등록된 행사 사진이 없습니다.</div>';
+      galleryGrid.innerHTML = `
+        <div class="editorial-empty-state">
+          <i class="fa-solid fa-camera-retro" aria-hidden="true"></i>
+          <p>아직 등록된 행사 사진이 없습니다.<br>동네책방 아인에서 열릴 따뜻한 모임과 이야기들을 기대해 주세요.</p>
+        </div>
+      `;
       if (btnMoreGallery) btnMoreGallery.style.display = 'none';
       return;
     }
@@ -1998,15 +2198,13 @@ const init = () => {
   }
 
   // 전체보기 모달 열기
-  function openGalleryListModal() {
+  function openGalleryListModal(triggerEl) {
     if (!galleryListModal) return;
     selectedGalleryYear = 'all';
     renderYearFilterChips();
     renderGalleryListByYear();
 
-    galleryListModal.classList.add('open');
-    galleryListModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    openAccessibleModal(galleryListModal, triggerEl);
   }
 
   // 연도 필터 칩 렌더링
@@ -2063,16 +2261,11 @@ const init = () => {
   }
 
   function closeGalleryListModal() {
-    if (!galleryListModal) return;
-    galleryListModal.classList.remove('open');
-    galleryListModal.setAttribute('aria-hidden', 'true');
-    if (!galleryModal || !galleryModal.classList.contains('open')) {
-      document.body.style.overflow = '';
-    }
+    closeAccessibleModal(galleryListModal);
   }
 
   if (btnMoreGallery) {
-    btnMoreGallery.addEventListener('click', openGalleryListModal);
+    btnMoreGallery.addEventListener('click', () => openGalleryListModal(btnMoreGallery));
   }
   if (btnCloseGalleryListModal) {
     btnCloseGalleryListModal.addEventListener('click', closeGalleryListModal);
@@ -2083,7 +2276,7 @@ const init = () => {
     });
   }
 
-  function openGalleryModal(item) {
+  function openGalleryModal(item, triggerEl) {
     if (!galleryModal) return;
     activeSlideUrls = item.imageUrls || [];
     currentSlideIndex = 0;
@@ -2093,7 +2286,7 @@ const init = () => {
     // 슬라이드 HTML 동적 생성
     slideContainer.innerHTML = activeSlideUrls.map(url => `
       <div class="slide">
-        <img src="${escapeHTML(url)}" alt="행사 사진">
+        <img src="${escapeHTML(url)}" alt="행사 사진" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='assets/space_interior.jpg';">
       </div>
     `).join('');
 
@@ -2132,9 +2325,7 @@ const init = () => {
     if (descEl) descEl.textContent = item.description;
 
     updateSlidePosition();
-    galleryModal.classList.add('open');
-    galleryModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    openAccessibleModal(galleryModal, triggerEl);
   }
 
   function updateSlidePosition() {
@@ -2172,15 +2363,7 @@ const init = () => {
   }
 
   function closeGalleryModal() {
-    if (!galleryModal) return;
-    galleryModal.classList.remove('open');
-    galleryModal.setAttribute('aria-hidden', 'true');
-
-    // 만약 갤러리 전체보기 목록 모달이 열려있는 상태라면 스크롤 방지를 유지
-    const isGalleryListOpen = galleryListModal && galleryListModal.classList.contains('open');
-    if (!isGalleryListOpen) {
-      document.body.style.overflow = '';
-    }
+    closeAccessibleModal(galleryModal);
   }
 
   if (closeGalleryModalBtn) {
@@ -2202,7 +2385,7 @@ const init = () => {
     return `
     <div class="product-card" id="product-card-${escapeHTML(item.id)}">
       <div class="product-img-wrapper">
-        <img src="${escapeHTML(item.image || 'assets/space_interior.jpg')}" alt="${escapeHTML(item.name)}" class="product-img"
+        <img src="${escapeHTML(item.image || 'assets/space_interior.jpg')}" alt="${escapeHTML(item.name)}" class="product-img" loading="lazy" decoding="async"
           onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400&auto=format&fit=crop';">
         ${badgeHtml}
       </div>
@@ -2253,26 +2436,21 @@ const init = () => {
   const btnMoreShop = document.getElementById('btn-more-shop');
   const btnCloseShopListModal = document.getElementById('btn-close-shop-list-modal');
 
-  function openShopListModal() {
+  function openShopListModal(triggerEl) {
     if (!shopListModal) return;
     const modalGrid = document.getElementById('shop-list-modal-grid');
     if (modalGrid) {
       modalGrid.innerHTML = beansData.map(createProductCardHTML).join('');
     }
-    shopListModal.classList.add('open');
-    shopListModal.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
+    openAccessibleModal(shopListModal, triggerEl);
   }
 
   function closeShopListModal() {
-    if (!shopListModal) return;
-    shopListModal.classList.remove('open');
-    shopListModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    closeAccessibleModal(shopListModal);
   }
 
   if (btnMoreShop) {
-    btnMoreShop.addEventListener('click', openShopListModal);
+    btnMoreShop.addEventListener('click', () => openShopListModal(btnMoreShop));
   }
   if (btnCloseShopListModal) {
     btnCloseShopListModal.addEventListener('click', closeShopListModal);
@@ -2280,6 +2458,35 @@ const init = () => {
   if (shopListModal) {
     shopListModal.addEventListener('click', (e) => {
       if (e.target === shopListModal) closeShopListModal();
+    });
+  }
+
+  // 개인정보 처리방침 전문 모달 연동
+  const privacyModal = document.getElementById('privacy-modal');
+  const btnOpenPrivacyModal = document.getElementById('btn-open-privacy-modal');
+  const btnClosePrivacyModal = document.getElementById('btn-close-privacy-modal');
+  const btnConfirmPrivacyModal = document.getElementById('btn-confirm-privacy-modal');
+
+  function openPrivacyModal(triggerEl) {
+    openAccessibleModal(privacyModal, triggerEl);
+  }
+
+  function closePrivacyModal() {
+    closeAccessibleModal(privacyModal);
+  }
+
+  if (btnOpenPrivacyModal) {
+    btnOpenPrivacyModal.addEventListener('click', () => openPrivacyModal(btnOpenPrivacyModal));
+  }
+  if (btnClosePrivacyModal) {
+    btnClosePrivacyModal.addEventListener('click', closePrivacyModal);
+  }
+  if (btnConfirmPrivacyModal) {
+    btnConfirmPrivacyModal.addEventListener('click', closePrivacyModal);
+  }
+  if (privacyModal) {
+    privacyModal.addEventListener('click', (e) => {
+      if (e.target === privacyModal) closePrivacyModal();
     });
   }
 

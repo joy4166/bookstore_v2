@@ -628,25 +628,113 @@ const init = () => {
   const rentalsTableBody = document.getElementById('rentals-table-body');
   const offlineForm = document.getElementById('offline-rental-form');
 
+  // ==========================================================================
+  // 관리자 모달 접근성 및 포커스 트랩 관리 (A11y & Focus Management)
+  // ==========================================================================
+  const adminModalFocusHistory = new Map();
+
+  function trapAdminModalFocus(modalBackdrop) {
+    const focusableSelectors = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusableElements = Array.from(modalBackdrop.querySelectorAll(focusableSelectors));
+    if (focusableElements.length === 0) return;
+
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    const firstInput = modalBackdrop.querySelector('input:not([type="hidden"]), select, textarea') || firstElement;
+    setTimeout(() => {
+      try { firstInput.focus(); } catch (e) {}
+    }, 50);
+
+    const keyHandler = (e) => {
+      if (e.key !== 'Tab') return;
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement || !modalBackdrop.contains(document.activeElement)) {
+          e.preventDefault();
+          lastElement.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement || !modalBackdrop.contains(document.activeElement)) {
+          e.preventDefault();
+          firstElement.focus();
+        }
+      }
+    };
+
+    modalBackdrop.addEventListener('keydown', keyHandler);
+    modalBackdrop._keyHandler = keyHandler;
+  }
+
+  function releaseAdminModalFocus(modalBackdrop) {
+    if (modalBackdrop && modalBackdrop._keyHandler) {
+      modalBackdrop.removeEventListener('keydown', modalBackdrop._keyHandler);
+      delete modalBackdrop._keyHandler;
+    }
+  }
+
+  function openAdminModal(modalBackdrop, triggerEl) {
+    if (!modalBackdrop) return;
+    const trigger = triggerEl || document.activeElement;
+    if (trigger && typeof trigger.focus === 'function') {
+      adminModalFocusHistory.set(modalBackdrop, trigger);
+    }
+    modalBackdrop.classList.add('open');
+    modalBackdrop.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    trapAdminModalFocus(modalBackdrop);
+  }
+
+  function closeAdminModal(modalBackdrop) {
+    if (!modalBackdrop) return;
+    releaseAdminModalFocus(modalBackdrop);
+    modalBackdrop.classList.remove('open');
+    modalBackdrop.setAttribute('aria-hidden', 'true');
+
+    const anyOpen = document.querySelector('.curation-list-modal-backdrop.open');
+    if (!anyOpen) {
+      document.body.style.overflow = '';
+    }
+
+    const prevTrigger = adminModalFocusHistory.get(modalBackdrop);
+    if (prevTrigger && typeof prevTrigger.focus === 'function') {
+      try { prevTrigger.focus(); } catch (e) {}
+      adminModalFocusHistory.delete(modalBackdrop);
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (dayModal && dayModal.classList.contains('open')) {
+        closeDayScheduleModal();
+      } else if (galleryModal && galleryModal.classList.contains('open')) {
+        closeGalleryModal();
+      } else if (bookModal && bookModal.classList.contains('open')) {
+        resetBookForm();
+      } else if (menuModal && menuModal.classList.contains('open')) {
+        closeMenuModal();
+      } else if (rentalModal && rentalModal.classList.contains('open')) {
+        closeRentalModal();
+      }
+    }
+  });
+
   // 수동 예약 등록 모달 엘리먼트 바인딩 및 리스너
   const rentalModal = document.getElementById('admin-rental-modal');
   const openRentalModalBtn = document.getElementById('btn-open-rental-modal-btn');
   const closeRentalModalBtn = document.getElementById('btn-close-rental-modal');
 
-  function openRentalModal() {
+  function openRentalModal(triggerEl) {
     offlineForm.reset();
-    rentalModal.classList.add('open');
-    rentalModal.setAttribute('aria-hidden', 'false');
+    openAdminModal(rentalModal, triggerEl || openRentalModalBtn);
   }
 
   function closeRentalModal() {
-    rentalModal.classList.remove('open');
-    rentalModal.setAttribute('aria-hidden', 'true');
+    closeAdminModal(rentalModal);
     offlineForm.reset();
   }
 
   if (openRentalModalBtn) {
-    openRentalModalBtn.addEventListener('click', openRentalModal);
+    openRentalModalBtn.addEventListener('click', () => openRentalModal(openRentalModalBtn));
   }
   if (closeRentalModalBtn) {
     closeRentalModalBtn.addEventListener('click', closeRentalModal);
@@ -970,7 +1058,7 @@ const init = () => {
   });
 
   // 점심 메뉴 신규/수정 모달 동작
-  function openEditMenuModal(type, id) {
+  function openEditMenuModal(type, id, triggerEl) {
     const isEdit = !!id;
     document.getElementById('edit-menu-id').value = id || '';
     document.getElementById('menu-item-type').value = type;
@@ -989,17 +1077,15 @@ const init = () => {
       document.getElementById('menu-item-type').value = type;
     }
 
-    menuModal.classList.add('open');
-    menuModal.setAttribute('aria-hidden', 'false');
+    openAdminModal(menuModal, triggerEl || openMenuModalBtn);
   }
 
   function closeMenuModal() {
-    menuModal.classList.remove('open');
-    menuModal.setAttribute('aria-hidden', 'true');
+    closeAdminModal(menuModal);
     menuItemForm.reset();
   }
 
-  openMenuModalBtn.addEventListener('click', () => openEditMenuModal('sandwiches'));
+  openMenuModalBtn.addEventListener('click', () => openEditMenuModal('sandwiches', null, openMenuModalBtn));
   closeMenuModalBtn.addEventListener('click', closeMenuModal);
   menuModal.addEventListener('click', (e) => {
     if (e.target === menuModal) closeMenuModal();
@@ -1341,7 +1427,7 @@ const init = () => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>
-          <img src="${escapeHTML(book.cover)}" alt="표지" class="book-thumbnail-cell" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
+          <img src="${escapeHTML(book.cover)}" alt="표지" class="book-thumbnail-cell" width="48" height="64" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544947950-fa07a98d237f?q=80&w=400';">
         </td>
         <td>
           <div style="font-weight: 700; color: var(--color-primary);">${escapeHTML(book.title)}</div>
@@ -1463,26 +1549,23 @@ const init = () => {
     document.getElementById('book-cover').value = '';
     if (bookCoverUrlInput) bookCoverUrlInput.value = '';
     if (bookCoverPreviewWrapper) bookCoverPreviewWrapper.style.display = 'none';
-    if (bookCoverPreview) bookCoverPreview.src = '';
+    if (bookCoverPreview) bookCoverPreview.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E";
     if (bookCoverFileInput) bookCoverFileInput.value = '';
     bookEditorTitle.textContent = '추천 도서 추가';
     btnSubmitBook.textContent = '추천 도서 추가';
 
-    bookModal.classList.remove('open');
-    bookModal.setAttribute('aria-hidden', 'true');
+    closeAdminModal(bookModal);
   }
 
   // 모달 제어용 리스너 바인딩
   if (openBookModalBtn) {
     openBookModalBtn.addEventListener('click', () => {
       resetBookForm();
-      // 현재 필터로 지정한 지기를 기본값으로 주입
       const activeFilter = selectKeeperFilter.value;
       if (activeFilter) {
         bookKeeperIdSelect.value = activeFilter;
       }
-      bookModal.classList.add('open');
-      bookModal.setAttribute('aria-hidden', 'false');
+      openAdminModal(bookModal, openBookModalBtn);
     });
   }
 
@@ -1822,8 +1905,11 @@ const init = () => {
       dayModalBookingsList.innerHTML = '<div style="color: var(--text-muted); font-size: 0.85rem; padding: 6px 0;">등록된 대관 일정이 없습니다.</div>';
     }
 
-    dayModal.classList.add('open');
-    dayModal.setAttribute('aria-hidden', 'false');
+    openAdminModal(dayModal);
+  }
+
+  function closeDayScheduleModal() {
+    closeAdminModal(dayModal);
   }
 
   async function toggleScheduleStatus(dateStr, isWeekend) {
@@ -1914,17 +2000,11 @@ const init = () => {
 
   const btnCloseDayScheduleModal = document.getElementById('btn-close-day-schedule-modal');
   if (btnCloseDayScheduleModal) {
-    btnCloseDayScheduleModal.addEventListener('click', () => {
-      dayModal.classList.remove('open');
-      dayModal.setAttribute('aria-hidden', 'true');
-    });
+    btnCloseDayScheduleModal.addEventListener('click', closeDayScheduleModal);
   }
   if (dayModal) {
     dayModal.addEventListener('click', (e) => {
-      if (e.target === dayModal) {
-        dayModal.classList.remove('open');
-        dayModal.setAttribute('aria-hidden', 'true');
-      }
+      if (e.target === dayModal) closeDayScheduleModal();
     });
   }
 
@@ -2035,17 +2115,15 @@ const init = () => {
   const btnOpenGalleryModal = document.getElementById('btn-open-gallery-modal');
   const btnCloseGalleryModal = document.getElementById('btn-close-gallery-modal');
 
-  function openGalleryModal() {
+  function openGalleryModal(triggerEl) {
     if (galleryModal) {
-      galleryModal.classList.add('open');
-      galleryModal.setAttribute('aria-hidden', 'false');
+      openAdminModal(galleryModal, triggerEl || btnOpenGalleryModal);
     }
   }
 
   function closeGalleryModal() {
     if (galleryModal) {
-      galleryModal.classList.remove('open');
-      galleryModal.setAttribute('aria-hidden', 'true');
+      closeAdminModal(galleryModal);
       if (galleryUploadForm) galleryUploadForm.reset();
       const editIdInput = document.getElementById('edit-gallery-id');
       if (editIdInput) editIdInput.value = '';
@@ -2062,7 +2140,7 @@ const init = () => {
   if (btnOpenGalleryModal) {
     btnOpenGalleryModal.addEventListener('click', () => {
       closeGalleryModal();
-      openGalleryModal();
+      openGalleryModal(btnOpenGalleryModal);
     });
   }
   if (btnCloseGalleryModal) {
@@ -2189,7 +2267,7 @@ const init = () => {
       tr.innerHTML = `
         <td>
           <div class="gallery-thumbnail-cell">
-            <img src="${escapeHTML(firstImg)}" alt="${escapeHTML(item.title)}">
+            <img src="${escapeHTML(firstImg)}" alt="${escapeHTML(item.title)}" loading="lazy" decoding="async">
           </div>
         </td>
         <td style="font-weight: 700; color: var(--color-primary);">${escapeHTML(item.title)}</td>
@@ -2295,7 +2373,7 @@ const init = () => {
       <tr data-id="${escapeHTML(b.id)}">
         <td style="text-align: center; font-weight: 600; color: var(--color-primary);">${Number(b.order) || 1}</td>
         <td style="text-align: center;">
-          <img src="${escapeHTML(b.image || 'assets/space_interior.jpg')}" alt="${escapeHTML(b.name)}" 
+          <img src="${escapeHTML(b.image || 'assets/space_interior.jpg')}" alt="${escapeHTML(b.name)}" width="50" height="50" loading="lazy" decoding="async"
                style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border-color);"
                onerror="this.src='https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?q=80&w=400&auto=format&fit=crop';">
         </td>

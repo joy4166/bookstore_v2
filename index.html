@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description"
     content="책과 커피 향이 머무는 곳, 동네책방 아인(AYIN)입니다. 책방지기가 큐레이션한 도서와 직접 로스팅한 원두, 드립백을 만나보세요. 아늑한 공간 대여도 가능합니다.">
   <meta name="keywords" content="동네책방 아인, 책방 아인, AYIN, 북카페, 로스팅원두, 원두판매, 공간대여, 독서모임, 동네책방, 감성책방">
@@ -15,11 +15,13 @@
   <!-- Fonts (Manrope & Nanum Myeongjo) & Font Awesome Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="preload" as="image" href="assets/store_main.png" fetchpriority="high">
   <link
     href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Nanum+Myeongjo:wght@400;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=15">
   <link rel="icon" href="assets/favicon.png" type="image/png">
 </head>
 
@@ -39,13 +41,23 @@
       <button id="btn-retry-loading" class="btn-retry">다시 시도 <i class="fa-solid fa-rotate-right"></i></button>
     </div>
   </div>
+  <script>
+    // 안전 타임아웃: 네트워크/스크립트 지연 시에도 사용자가 빈 화면에 갇히지 않도록 강제 안전 해제
+    setTimeout(function() {
+      var ov = document.getElementById('global-loading-overlay');
+      if (ov && !ov.classList.contains('hidden')) {
+        ov.classList.add('hidden');
+        setTimeout(function() { ov.style.display = 'none'; }, 650);
+      }
+    }, 3800);
+  </script>
 
   <!-- 헤더 (Header) -->
   <header id="main-header" class="main-header">
     <div class="header-container">
       <a href="#home" class="logo-area" id="link-logo-home">
         <!-- 실제 로고 파일 로드 시도, 실패 시 텍스트 로고 노출을 위한 onerror 및 클래스 설정 -->
-        <img src="assets/logo.png" alt="동네책방 아인" class="logo-img" id="header-logo-image"
+        <img src="assets/logo.png" alt="동네책방 아인" class="logo-img" id="header-logo-image" width="92" height="38" decoding="async"
           onerror="this.style.display='none'; document.getElementById('logo-fallback-text').style.display='block';">
         <span id="logo-fallback-text" class="logo-text" style="display: none;">동네책방 아인</span>
       </a>
@@ -92,10 +104,9 @@
       <div class="hero-slider-wrapper">
         <div class="hero-image-container">
           <!-- 책방 메인 사진 플레이스홀더 -->
-          <img src="assets/store_main.png" alt="동네책방 아인 전경" class="hero-image" id="img-store-main"
+          <img src="assets/store_main.png" alt="동네책방 아인 전경" class="hero-image" id="img-store-main" width="1200" height="704" fetchpriority="high" decoding="async"
             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1200&auto=format&fit=crop';">
           <div class="hero-overlay">
-            <span class="hero-kicker">INDEPENDENT BOOKSHOP &amp; ROASTERY</span>
             <h1 class="hero-title">동네책방 아인</h1>
             <p class="hero-subtitle">사락거리는 종이책의 온기와 갓 내린 커피 향이 머무는, 조용하고 아늑한 문학적 쉼표</p>
             <div class="hero-cta-group">
@@ -130,7 +141,7 @@
         <div class="quick-info-grid">
           <div class="quick-info-card">
             <div class="info-card-top">
-              <span class="info-index tabular-nums">01 / OPENING HOURS</span>
+              <span class="info-index">OPENING HOURS</span>
               <i class="fa-solid fa-clock info-card-icon" aria-hidden="true"></i>
             </div>
             <h3>영업시간 안내</h3>
@@ -139,7 +150,7 @@
           </div>
           <div class="quick-info-card">
             <div class="info-card-top">
-              <span class="info-index tabular-nums">02 / ROASTERY COFFEE</span>
+              <span class="info-index">ROASTERY COFFEE</span>
               <i class="fa-solid fa-mug-hot info-card-icon" aria-hidden="true"></i>
             </div>
             <h3>스페셜티 핸드드립</h3>
@@ -147,7 +158,7 @@
           </div>
           <div class="quick-info-card">
             <div class="info-card-top">
-              <span class="info-index tabular-nums">03 / PRIVATE SPACE</span>
+              <span class="info-index">PRIVATE SPACE</span>
               <i class="fa-solid fa-door-open info-card-icon" aria-hidden="true"></i>
             </div>
             <h3>아늑한 공간 대여</h3>
@@ -161,7 +172,7 @@
     <section id="cafe-menu" class="cafe-menu-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">01 / CAFÉ &amp; PASS</span>
+          <span class="sub-title">CAFÉ &amp; PASS</span>
           <h2>카페 메뉴 &amp; 이용 패스</h2>
           <div class="section-divider"></div>
           <p class="section-intro">향긋한 핸드드립 커피와 수제 브런치, 그리고 서재 공간을 여유롭게 누리는 책방 패스입니다.</p>
@@ -193,7 +204,7 @@
     <section id="book-curation" class="book-curation-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">02 / CURATION NOTES</span>
+          <span class="sub-title">CURATION NOTES</span>
           <h2>책방지기 큐레이션 서가</h2>
           <div class="section-divider"></div>
           <p class="section-intro">아인의 책방지기들이 직접 읽고 밑줄 그은 문장들과 함께 권하는 이달의 추천 도서입니다.</p>
@@ -217,7 +228,7 @@
     <section id="gallery" class="gallery-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">03 / ARCHIVE &amp; EVENTS</span>
+          <span class="sub-title">ARCHIVE &amp; EVENTS</span>
           <h2>책방 갤러리</h2>
           <div class="section-divider"></div>
           <p class="section-intro">동네책방 아인에서 진행된 다양한 행사와 따뜻한 일상의 기록입니다.</p>
@@ -240,7 +251,7 @@
     <section id="shop" class="shop-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">04 / ROASTING BEANS</span>
+          <span class="sub-title">ROASTING BEANS</span>
           <h2>원두 &amp; 드립백 숍</h2>
           <div class="section-divider"></div>
           <p class="section-intro">아인에서 매일 아침 정성껏 로스팅한 스페셜티 원두와 드립백을 집에서도 그대로 즐겨보세요.</p>
@@ -263,7 +274,7 @@
     <section id="rental" class="rental-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">05 / SPACE RENTAL</span>
+          <span class="sub-title">SPACE RENTAL</span>
           <h2>공간 대여</h2>
           <div class="section-divider"></div>
           <p class="section-intro">북카페 아인의 조용하고 아늑한 서재 공간을 단독으로 대여해 드립니다. 독서 모임, 학업, 강연, 소규모 모임에 적합합니다.</p>
@@ -290,11 +301,13 @@
             <div class="calendar-card" id="rental-calendar-card">
               <div class="calendar-header">
                 <div class="calendar-title-group">
-                  <button type="button" class="btn-cal-nav" id="client-cal-prev" aria-label="이전 달"><i
-                      class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
                   <h3 id="client-cal-title" class="calendar-month-title tabular-nums">2026년 10월</h3>
-                  <button type="button" class="btn-cal-nav" id="client-cal-next" aria-label="다음 달"><i
-                      class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                  <div class="calendar-nav-buttons">
+                    <button type="button" class="btn-cal-nav" id="client-cal-prev" aria-label="이전 달"><i
+                        class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+                    <button type="button" class="btn-cal-nav" id="client-cal-next" aria-label="다음 달"><i
+                        class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+                  </div>
                 </div>
                 <div class="calendar-legend">
                   <span class="legend-item"><span class="legend-color holiday"></span> 휴무일</span>
@@ -380,9 +393,46 @@
               <!-- 인라인 폼 검증 에러 배너 (window.alert 대체) -->
               <div id="rental-form-error" class="form-error-banner" role="alert" aria-live="polite" hidden></div>
 
-              <p class="form-privacy-notice">
-                <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 입력하신 성함과 연락처는 대관 예약 확인 및 안내 연락 목적으로만 사용되며, 이용 종료 후 파기됩니다.
-              </p>
+              <!-- 개인정보 수집 및 이용 동의 (개인정보 보호법 제15조 제2항 준수) -->
+              <div class="rental-privacy-agreement-group" id="rental-privacy-agreement-group">
+                <div class="privacy-checkbox-wrapper">
+                  <label class="custom-checkbox-label" for="rental-privacy-agree">
+                    <input type="checkbox" id="rental-privacy-agree" name="privacyAgree" required>
+                    <span class="custom-checkbox-visual" aria-hidden="true">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
+                    <span class="agreement-text">
+                      <strong class="required-badge">[필수]</strong> 개인정보 수집 및 이용에 동의합니다
+                    </span>
+                  </label>
+                  <button type="button" class="btn-toggle-privacy-details" id="btn-toggle-privacy-details" aria-expanded="false" aria-controls="rental-privacy-details-box" aria-label="개인정보 수집 및 이용 세부내용 보기">
+                    <span>상세보기</span>
+                    <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <!-- 4대 법적 고지사항 아코디언 카드 -->
+                <div id="rental-privacy-details-box" class="rental-privacy-details-box" hidden>
+                  <dl class="privacy-terms-list">
+                    <div class="term-row">
+                      <dt><i class="fa-solid fa-circle-check" aria-hidden="true"></i> 수집·이용 목적</dt>
+                      <dd>공간 대여 예약 접수, 일정 상담 안내, 이용 자격 확인 및 예약 안내 연락</dd>
+                    </div>
+                    <div class="term-row">
+                      <dt><i class="fa-solid fa-circle-check" aria-hidden="true"></i> 수집하는 항목</dt>
+                      <dd>신청자 성명, 휴대전화번호, 희망 일시 및 사용 목적</dd>
+                    </div>
+                    <div class="term-row">
+                      <dt><i class="fa-solid fa-circle-check" aria-hidden="true"></i> 보유 및 이용 기간</dt>
+                      <dd><strong>대관 이용 및 결제·정산 완료 후 3개월</strong> (분쟁 처리 목적 보관 후 지체 없이 영구 파기)</dd>
+                    </div>
+                    <div class="term-row">
+                      <dt><i class="fa-solid fa-circle-check" aria-hidden="true"></i> 동의 거부 권리 및 불이익</dt>
+                      <dd>개인정보 수집 동의를 거부하실 수 있으나, 미동의 시 공간 대여 신청이 불가합니다.</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
 
               <button type="submit" class="btn-submit-rental" id="btn-submit-space-rental">
                 대여 신청하기 <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
@@ -397,7 +447,7 @@
     <section id="about" class="about-section">
       <div class="container">
         <div class="section-header">
-          <span class="sub-title tabular-nums">06 / ABOUT &amp; LOCATION</span>
+          <span class="sub-title">ABOUT &amp; LOCATION</span>
           <h2>책방 소개 &amp; 오시는 길</h2>
           <div class="section-divider"></div>
           <p class="section-intro">골목 끝자락에서 따뜻한 조명과 커피 향을 켜두고 당신의 발걸음을 기다립니다.</p>
@@ -473,28 +523,35 @@
       </div>
       <div class="footer-divider"></div>
       <div class="footer-bottom">
+        <div class="footer-bottom-links">
+          <button type="button" class="footer-privacy-btn" id="btn-open-privacy-modal" aria-haspopup="dialog">
+            <i class="fa-solid fa-shield-halved" aria-hidden="true"></i> 개인정보처리방침
+          </button>
+          <span class="footer-divider-dot">·</span>
+          <a href="#about" class="footer-sub-link">책방 이용안내 및 위치</a>
+        </div>
         <div class="footer-bottom-content">
           <span class="footer-copyright">&copy; 2026 동네책방 아인 AYIN. All Rights Reserved.</span>
           <span class="footer-divider-dot">·</span>
           <span class="footer-creator">
             <span class="creator-label">디자인 및 개발</span>
-            <img src="assets/justjoy_logo_light.png" alt="JUSTJOY" class="footer-creator-logo" height="18">
+            <img src="assets/justjoy_logo_light.png" alt="JUSTJOY" class="footer-creator-logo" width="86" height="18" loading="lazy" decoding="async">
           </span>
         </div>
-        <p class="footer-disclaimer">개인정보 보호 안내: 공간 대여 신청 시 입력된 개인정보는 예약 확인 및 이용 안내 목적으로만 활용되며 목적 달성 후 지체 없이 파기됩니다.</p>
+        <p class="footer-disclaimer">개인정보 보호 안내: 공간 대여 신청 시 입력된 개인정보는 예약 확인 및 이용 안내 목적으로만 활용되며, 이용 완료 후 관련 법령에 따라 안전하게 파기됩니다.</p>
       </div>
     </div>
   </footer>
 
   <!-- 책방지기 리뷰 모달 (Book Review Modal) -->
   <div class="review-modal-backdrop" id="review-modal" aria-hidden="true">
-    <div class="review-modal">
+    <div class="review-modal" role="dialog" aria-modal="true" aria-labelledby="modal-book-title">
       <button class="modal-close-btn" id="btn-close-modal" aria-label="모달 닫기">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <div class="modal-content-wrapper">
         <div class="modal-book-img">
-          <img src="" alt="도서 이미지" id="modal-cover-img">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 170'%3E%3Crect width='100%25' height='100%25' fill='%23F3ECE0'/%3E%3C/svg%3E" alt="도서 이미지" id="modal-cover-img">
         </div>
         <div class="modal-book-details">
           <span class="modal-badge" id="modal-badge-text">카테고리</span>
@@ -513,11 +570,10 @@
 
   <!-- 공간 대여 완료 안내 팝업/모달 (Rental Success Modal) -->
   <div class="success-modal-backdrop" id="success-modal" aria-hidden="true">
-    <div class="success-modal">
-      <div class="success-icon-circle">
-        <i class="fa-solid fa-calendar-check"></i>
-      </div>
-      <h2>대여 신청 완료</h2>
+    <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="success-modal-title">
+      <h2 id="success-modal-title" class="success-heading">
+        <i class="fa-solid fa-circle-check" aria-hidden="true"></i> 대여 신청 완료
+      </h2>
       <p class="success-summary">공간 대여 신청 정보가 접수되었습니다.</p>
 
       <div class="success-detail-receipt tabular-nums" id="receipt-details">
@@ -535,7 +591,7 @@
 
   <!-- 큐레이션 전체 목록 모달 (Curation List Modal) -->
   <div class="curation-list-modal-backdrop" id="curation-list-modal" aria-hidden="true">
-    <div class="curation-list-modal">
+    <div class="curation-list-modal" role="dialog" aria-modal="true" aria-labelledby="curation-list-modal-title">
       <button class="modal-close-btn" id="btn-close-curation-list-modal" aria-label="모달 닫기">
         <i class="fa-solid fa-xmark"></i>
       </button>
@@ -553,12 +609,12 @@
 
   <!-- 책방 행사 및 기록 전체보기 모달 (Gallery List Modal) -->
   <div class="curation-list-modal-backdrop" id="gallery-list-modal" aria-hidden="true">
-    <div class="curation-list-modal">
+    <div class="curation-list-modal" role="dialog" aria-modal="true" aria-labelledby="gallery-list-modal-title">
       <button class="modal-close-btn" id="btn-close-gallery-list-modal" aria-label="모달 닫기">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <div class="curation-list-modal-header">
-        <h3>책방 행사 및 기록 전체보기</h3>
+        <h3 id="gallery-list-modal-title">책방 행사 및 기록 전체보기</h3>
         <p>동네책방 아인이 걸어온 지난 시간의 따뜻한 기록들입니다.</p>
 
         <!-- 연도별 필터 칩 영역 -->
@@ -576,12 +632,12 @@
 
   <!-- 원두 및 굿즈 전체보기 모달 (Shop List Modal) -->
   <div class="curation-list-modal-backdrop" id="shop-list-modal" aria-hidden="true">
-    <div class="curation-list-modal curation-list-modal--wide">
+    <div class="curation-list-modal curation-list-modal--wide" role="dialog" aria-modal="true" aria-labelledby="shop-list-modal-title">
       <button class="modal-close-btn" id="btn-close-shop-list-modal" aria-label="모달 닫기">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <div class="curation-list-modal-header">
-        <h3>원두 및 드립백 전체보기</h3>
+        <h3 id="shop-list-modal-title">원두 및 드립백 전체보기</h3>
         <p>아인에서 정성껏 로스팅한 모든 스페셜티 원두와 굿즈 상품입니다.</p>
       </div>
       <div class="curation-list-modal-content">
@@ -594,7 +650,7 @@
 
   <!-- 갤러리 상세 보기 모달 (Gallery Detail Modal) -->
   <div class="gallery-modal-backdrop" id="gallery-detail-modal" aria-hidden="true">
-    <div class="gallery-modal">
+    <div class="gallery-modal" role="dialog" aria-modal="true" aria-labelledby="gallery-detail-title">
       <button class="modal-close-btn" id="btn-close-gallery-modal" aria-label="모달 닫기">
         <i class="fa-solid fa-xmark"></i>
       </button>
@@ -622,8 +678,145 @@
     </div>
   </div>
 
+  <!-- 개인정보 처리방침 전문 모달 (Privacy Policy Full Modal) -->
+  <div class="privacy-modal-backdrop" id="privacy-modal" aria-hidden="true">
+    <div class="privacy-modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title">
+      <button class="modal-close-btn" id="btn-close-privacy-modal" aria-label="개인정보 처리방침 닫기">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="privacy-modal-header">
+        <span class="privacy-modal-badge"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i> 개인정보 보호법 제30조 준수</span>
+        <h3 id="privacy-modal-title">동네책방 아인 개인정보 처리방침</h3>
+        <p class="privacy-modal-meta">시행일자: 2026년 9월 3일 | 최종 개정일: 2026년 10월 29일</p>
+      </div>
+      <div class="privacy-modal-body">
+        <div class="privacy-lead-box">
+          <p>동네책방 아인(이하 '책방'이라 함)은 정보주체의 자유와 권리 보호를 위해 「개인정보 보호법」 및 관계 법령이 정한 바를 준수하며, 적법하게 개인정보를 처리하고 안전하게 관리하고 있습니다. 이에 「개인정보 보호법」 제30조에 따라 정보주체에게 개인정보 처리에 관한 절차 및 기준을 안내하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수 있도록 하기 위하여 다음과 같이 개인정보 처리방침을 수립·공개합니다.</p>
+        </div>
+
+        <article class="privacy-section-block">
+          <h4>제1조 (개인정보의 처리 목적, 항목 및 보유기간)</h4>
+          <p>책방은 다음의 목적을 위하여 최소한의 개인정보를 수집·처리합니다. 처리하고 있는 개인정보는 다음 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 「개인정보 보호법」 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.</p>
+          <div class="privacy-table-wrapper">
+            <table class="privacy-table">
+              <thead>
+                <tr>
+                  <th scope="col">처리 목적</th>
+                  <th scope="col">수집 항목</th>
+                  <th scope="col">법적 근거 및 보유기간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>공간 대여(단독 서재) 예약 접수 및 일정 관리</strong></td>
+                  <td>[필수] 신청자 성명, 휴대전화번호, 희망 대여 일시, 신청 인원, 이용 목적</td>
+                  <td><strong>대관 이용 및 결제·정산 완료 후 3개월</strong><br>(분쟁 해결 및 환불 처리 목적, 기간 경과 시 지체 없이 영구 파기)</td>
+                </tr>
+                <tr>
+                  <td><strong>고객 문의 및 책방 안내 응대</strong></td>
+                  <td>성명, 연락처(이메일 또는 전화번호), 문의 내용</td>
+                  <td>문의 접수 및 안내 완료 후 1년</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제2조 (개인정보의 제3자 제공에 관한 사항)</h4>
+          <p>책방은 정보주체의 개인정보를 제1조에서 명시한 범위 내에서만 처리하며, 정보주체의 사전 동의, 법률의 특별한 규정 등 「개인정보 보호법」 제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다. 책방은 일상적인 서비스 제공 과정에서 고객의 개인정보를 영리 목적으로 외부에 판매하거나 제공하지 않습니다.</p>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제3조 (개인정보 처리업무의 위탁에 관한 사항)</h4>
+          <p>책방은 원활한 웹서비스 제공 및 예약 시스템 운영을 위하여 다음과 같이 개인정보 처리 업무를 위탁하고 있습니다.</p>
+          <div class="privacy-table-wrapper">
+            <table class="privacy-table">
+              <thead>
+                <tr>
+                  <th scope="col">수탁 업체</th>
+                  <th scope="col">위탁 업무 내용</th>
+                  <th scope="col">보유 및 이용 기간</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Google LLC (Firebase / Google Cloud)</strong></td>
+                  <td>클라우드 데이터베이스 인프라 제공 및 예약 데이터의 안전한 암호화 보관</td>
+                  <td>서비스 제공 기간 및 회원 탈퇴 / 보유기간 만료 시까지</td>
+                </tr>
+                <tr>
+                  <td><strong>Google LLC (Google Apps Script)</strong></td>
+                  <td>예약 신청 접수 시 관리자 Gmail 알림 전송 (신청 고유 ID만 단방향 전송)</td>
+                  <td>알림 발송 처리 완료 즉시 파기</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제4조 (개인정보의 파기절차 및 파기방법)</h4>
+          <p>책방은 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체 없이 해당 개인정보를 파기합니다.</p>
+          <ul class="privacy-bullet-list">
+            <li><strong>파기절차:</strong> 파기 사유가 발생한 개인정보를 선정하고, 개인정보 보호책임자의 확인을 거쳐 안전하게 영구 파기합니다.</li>
+            <li><strong>파기방법:</strong> 전자적 파일 형태로 기록·저장된 개인정보는 재생할 수 없도록 기술적 방법(영구 삭제)을 적용하여 파기합니다.</li>
+          </ul>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제5조 (정보주체와 법정대리인의 권리·의무 및 행사방법)</h4>
+          <p>정보주체는 책방에 대해 언제든지 개인정보 열람·정정·삭제·처리정지 요구 등의 권리를 행사할 수 있습니다.</p>
+          <ul class="privacy-bullet-list">
+            <li>권리 행사는 유선 전화(051-868-2210) 또는 전자우편(ayin_bookstore@naver.com)을 통하여 요청하실 수 있으며, 책방은 10일 이내에 지체 없이 조치하겠습니다.</li>
+            <li>만 14세 미만 아동의 법정대리인은 해당 아동에 관한 개인정보의 열람 및 처리 요구권을 가집니다.</li>
+          </ul>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제6조 (개인정보의 안전성 확보조치)</h4>
+          <p>책방은 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다.</p>
+          <ul class="privacy-bullet-list">
+            <li><strong>기술적 조치:</strong> SSL/TLS 암호화 통신 적용을 통한 네트워크 전송 데이터 보호, 데이터베이스 보안 규칙을 통한 비인가 접근 차단.</li>
+            <li><strong>관리적 조치:</strong> 관리자 계정 접근 권한의 최소화 및 정기적인 비밀번호 변경 관리.</li>
+          </ul>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제7조 (개인정보 보호책임자 및 고충처리)</h4>
+          <p>책방은 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제를 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
+          <div class="privacy-cpo-card">
+            <div class="cpo-row"><span>개인정보 보호책임자</span><strong>임영혜 (동네책방 아인 대표 책방지기)</strong></div>
+            <div class="cpo-row"><span>전화번호</span><span>051-868-2210</span></div>
+            <div class="cpo-row"><span>전자우편</span><span>ayin_bookstore@naver.com</span></div>
+            <div class="cpo-row"><span>사업장 주소</span><span>부산광역시 연제구 월드컵대로221 (다우빌딩 2층, 거제역 7번 출구)</span></div>
+          </div>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제8조 (정보주체의 권익침해 구제방법)</h4>
+          <p>정보주체는 개인정보침해로 인한 구제를 받기 위하여 아래의 기관에 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
+          <ul class="privacy-bullet-list">
+            <li><strong>개인정보분쟁조정위원회:</strong> (국번없이) 1833-6972 (www.kopico.go.kr)</li>
+            <li><strong>개인정보침해신고센터:</strong> (국번없이) 118 (privacy.kisa.or.kr)</li>
+            <li><strong>대검찰청 사이버수사과:</strong> (국번없이) 1301 (www.spo.go.kr)</li>
+            <li><strong>경찰청 사이버수사국:</strong> (국번없이) 182 (ecrm.police.go.kr)</li>
+          </ul>
+        </article>
+
+        <article class="privacy-section-block">
+          <h4>제9조 (개인정보 처리방침의 변경)</h4>
+          <p>이 개인정보 처리방침은 2026년 9월 3일부터 적용되며, 관계 법령 및 방침에 따른 변경 내용의 추가, 삭제 및 정정이 있는 경우에는 웹사이트 공지를 통해 안내하겠습니다.</p>
+        </article>
+      </div>
+      <div class="privacy-modal-footer">
+        <button type="button" class="btn-primary" id="btn-confirm-privacy-modal">확인 및 닫기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK 및 App Script 로드 (Module) -->
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=4"></script>
 </body>
 
 </html>

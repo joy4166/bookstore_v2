@@ -1,6 +1,8 @@
 .firebase/
 Archive/
 .agents/
+.codex/
+.impeccable/
 *.log
 .DS_Store
 Thumbs.db
